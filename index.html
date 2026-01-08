@@ -1511,14 +1511,27 @@
             const url = new URL(WEBHOOK_CONFIG.BASE_URL);
             url.searchParams.append('action', action);
 
-            for (const key in params) {
-                url.searchParams.append(key, params[key]);
+            // Determine if we should use POST or GET
+            const isPostAction = action === WEBHOOK_CONFIG.ACTIONS.ADD_INCOME ||
+                action === WEBHOOK_CONFIG.ACTIONS.SET_GOAL;
+
+            let fetchOptions = {
+                headers: { 'Content-Type': 'application/json' }
+            };
+
+            if (isPostAction) {
+                // Use POST method with body for write operations
+                fetchOptions.method = 'POST';
+                fetchOptions.body = JSON.stringify(params);
+            } else {
+                // Use GET method with query params for read operations
+                fetchOptions.method = 'GET';
+                for (const key in params) {
+                    url.searchParams.append(key, params[key]);
+                }
             }
 
-            const response = await fetch(url.toString(), {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const response = await fetch(url.toString(), fetchOptions);
 
             if (!response.ok) {
                 throw new Error(`Webhook error: ${response.status}`);
