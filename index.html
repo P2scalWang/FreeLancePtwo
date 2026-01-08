@@ -5,23 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freelance Income Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-primary: #0a0a1a;
-            --bg-secondary: #12122a;
-            --bg-card: rgba(30, 30, 60, 0.6);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0c0;
-            --accent-primary: #6366f1;
-            --accent-secondary: #8b5cf6;
-            --accent-tertiary: #06b6d4;
-            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
-            --gradient-2: linear-gradient(135deg, #f472b6 0%, #8b5cf6 100%);
-            --gradient-3: linear-gradient(135deg, #06b6d4 0%, #22d3d1 100%);
-            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
-            --border-glass: 1px solid rgba(255, 255, 255, 0.1);
+            /* Neumorphic Dark Palette */
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-elevated: #334155;
+            --bg-input: #0f172a;
+
+            /* Colors */
+            --primary: #6366f1;
+            --secondary: #14b8a6;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --warning: #f59e0b;
+
+            /* Text */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            /* Neumorphic Shadows */
+            --shadow-raised: 8px 8px 16px #0a0f1a, -8px -8px 16px #1a2742;
+            --shadow-inset: inset 4px 4px 8px #0a0f1a, inset -4px -4px 8px #1a2742;
+            --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+            /* Gradients */
+            --grad-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --grad-secondary: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+            --grad-success: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
         }
 
         * {
@@ -31,135 +49,148 @@
         }
 
         body {
-            font-family: 'Prompt', sans-serif;
-            background: var(--bg-primary);
+            font-family: 'Prompt', 'Inter', sans-serif;
+            background: var(--bg-main);
             color: var(--text-primary);
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
+        /* Top Navigation */
+        .top-nav {
+            background: var(--bg-card);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-soft);
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-brand i {
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .year-pills {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-main);
+            padding: 0.25rem;
+            border-radius: 12px;
+        }
+
+        .year-pill {
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 500;
+        }
+
+        .year-pill.active {
+            background: var(--grad-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Main Container */
+        .dashboard-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        /* Hero Card */
+        .hero-card {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-raised);
+            position: relative;
             overflow: hidden;
         }
 
-        .bg-animation::before {
+        .hero-card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background:
-                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
-            animation: bgFloat 20s ease-in-out infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--grad-primary);
         }
 
-        @keyframes bgFloat {
-
-            0%,
-            100% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-
-            33% {
-                transform: translate(2%, 2%) rotate(1deg);
-            }
-
-            66% {
-                transform: translate(-1%, 1%) rotate(-1deg);
-            }
-        }
-
-        /* Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            position: relative;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .hero-content h1 {
+            font-size: 2rem;
             margin-bottom: 0.5rem;
-            text-shadow: 0 0 60px rgba(99, 102, 241, 0.5);
+            background: var(--grad-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
-        /* Year Filter */
-        .year-filter {
+        .hero-stats {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 3rem;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
         }
 
-        .year-btn {
-            padding: 0.75rem 2rem;
-            background: var(--bg-card);
-            border: var(--border-glass);
-            border-radius: 50px;
-            color: var(--text-secondary);
-            font-family: 'Prompt', sans-serif;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+        .hero-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
-        .year-btn:hover {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--text-primary);
-            transform: translateY(-2px);
+        .hero-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
-        .year-btn.active {
-            background: var(--gradient-1);
-            color: white;
-            box-shadow: var(--shadow-glow);
+        .hero-stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
         }
 
         /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .stat-card {
             background: var(--bg-card);
-            border: var(--border-glass);
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 2rem;
-            backdrop-filter: blur(20px);
-            transition: all 0.4s ease;
+            box-shadow: var(--shadow-raised);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
             position: relative;
             overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
         }
 
         .stat-card::before {
@@ -168,319 +199,469 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: var(--gradient-1);
+            height: 3px;
             opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-glow);
+            transition: opacity 0.3s;
         }
 
         .stat-card:hover::before {
             opacity: 1;
         }
 
-        .stat-card .icon {
+        .stat-card.income::before {
+            background: var(--grad-success);
+        }
+
+        .stat-card.average::before {
+            background: var(--grad-secondary);
+        }
+
+        .stat-card.best::before {
+            background: var(--grad-primary);
+        }
+
+        .stat-card.action::before {
+            background: var(--accent);
+        }
+
+        .stat-icon {
             width: 60px;
             height: 60px;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-soft);
         }
 
-        .stat-card:nth-child(1) .icon {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        .stat-card.income .stat-icon {
+            background: var(--grad-success);
         }
 
-        .stat-card:nth-child(2) .icon {
-            background: linear-gradient(135deg, #06b6d4 0%, #22d3d1 100%);
+        .stat-card.average .stat-icon {
+            background: var(--grad-secondary);
         }
 
-        .stat-card:nth-child(3) .icon {
-            background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+        .stat-card.best .stat-icon {
+            background: var(--grad-primary);
         }
 
-        .stat-card:nth-child(4) .icon {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        .stat-card.action .stat-icon {
+            background: linear-gradient(135deg, var(--accent) 0%, #ec4899 100%);
         }
 
-        .stat-card .label {
-            color: var(--text-secondary);
+        .stat-label {
             font-size: 0.9rem;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
         }
 
-        .stat-card .value {
+        .stat-value {
             font-size: 2rem;
-            font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
         }
 
-        .stat-card .sub-value {
+        .stat-card.income .stat-value {
+            color: var(--success);
+        }
+
+        .stat-card.average .stat-value {
+            color: var(--secondary);
+        }
+
+        .stat-card.best .stat-value {
+            color: var(--primary);
+        }
+
+        .stat-card.action .stat-value {
+            font-size: 1rem;
             color: var(--text-secondary);
+        }
+
+        .stat-sub {
             font-size: 0.85rem;
+            color: var(--text-muted);
             margin-top: 0.25rem;
         }
 
         /* Chart Section */
         .chart-section {
             background: var(--bg-card);
-            border: var(--border-glass);
             border-radius: 24px;
-            padding: 2rem;
-            backdrop-filter: blur(20px);
-            margin-bottom: 2rem;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-raised);
         }
 
-        .chart-header {
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
-        .chart-header h2 {
+        .section-title {
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .chart-hint {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
         }
 
         .chart-container {
-            position: relative;
+            width: 100%;
             height: 400px;
         }
 
-        /* Drill-down Modal */
+        /* Goal Section */
+        .goal-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow-raised);
+        }
+
+        .goal-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .goal-gauge-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circular-gauge {
+            width: 100%;
+            max-width: 240px;
+            height: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .gauge-progress {
+            transition: stroke-dashoffset 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+        }
+
+        .gauge-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -35%);
+            text-align: center;
+        }
+
+        .gauge-percentage {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--success);
+            font-family: 'Inter', sans-serif;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .goal-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .goal-input-row {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .goal-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Prompt', sans-serif;
+            box-shadow: var(--shadow-inset);
+        }
+
+        .goal-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--grad-primary);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+        }
+
+        .goal-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .goal-stat-box {
+            background: var(--bg-main);
+            padding: 1.25rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-inset);
+        }
+
+        .goal-stat-box-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-stat-box-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Breakdown Section */
+        .breakdown-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-raised);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .amount-cell {
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            color: var(--success);
+            font-size: 1.1rem;
+        }
+
+        .trend-positive {
+            color: var(--success);
+        }
+
+        .trend-negative {
+            color: var(--text-muted);
+        }
+
+        /* FAB - Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--grad-primary);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+            z-index: 99;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.6);
+        }
+
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
+            backdrop-filter: blur(8px);
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            z-index: 1000;
         }
 
         .modal-overlay.active {
             display: flex;
-            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        .modal-content {
-            background: var(--bg-secondary);
-            border: var(--border-glass);
+        .modal {
+            background: var(--bg-card);
             border-radius: 24px;
-            padding: 2rem;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-raised);
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .modal-wide {
+            max-width: 700px;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: var(--border-glass);
+            margin-bottom: 2rem;
         }
 
-        .modal-header h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
         .close-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             border: none;
             color: var(--text-secondary);
             font-size: 1.5rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.3s;
         }
 
         .close-btn:hover {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            background: var(--accent);
+            color: white;
         }
 
-        .modal-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .modal-stat {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 0.75rem;
-            text-align: center;
-        }
-
-        .modal-stat .label {
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
             color: var(--text-secondary);
-            font-size: 0.75rem;
-            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
         }
 
-        .modal-stat .value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--accent-tertiary);
-        }
-
-        .modal-chart-container {
-            display: none;
-        }
-
-        /* Daily Table with Scroll */
-        .table-scroll-container {
-            max-height: 300px;
-            overflow-y: auto;
-            border-radius: 12px;
-            border: var(--border-glass);
-        }
-
-        .table-scroll-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .table-scroll-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-        }
-
-        .table-scroll-container::-webkit-scrollbar-thumb {
-            background: var(--accent-primary);
-            border-radius: 4px;
-        }
-
-        .table-scroll-container::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-secondary);
-        }
-
-        /* Daily Table */
-        .daily-table {
+        .form-input {
             width: 100%;
-            border-collapse: collapse;
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Prompt', sans-serif;
+            box-shadow: var(--shadow-inset);
         }
 
-        .daily-table thead {
-            position: sticky;
-            top: 0;
-            background: var(--bg-secondary);
-            z-index: 1;
-        }
-
-        .daily-table th,
-        .daily-table td {
-            padding: 0.85rem 1rem;
-            text-align: left;
-            border-bottom: var(--border-glass);
-        }
-
-        .daily-table th {
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .daily-table td {
-            font-size: 1rem;
-        }
-
-        .daily-table tbody tr {
-            transition: background 0.2s ease;
-        }
-
-        .daily-table tbody tr:hover td {
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .amount-cell {
-            font-weight: 600;
-            color: var(--accent-tertiary);
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
         }
 
         /* Loading */
-        .loading {
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.95);
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 4rem;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 0.3s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(99, 102, 241, 0.2);
-            border-top-color: var(--accent-primary);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
@@ -489,1037 +670,342 @@
             }
         }
 
-        .loading-text {
-            margin-top: 1rem;
-            color: var(--text-secondary);
-        }
-
-        /* Add Income Section */
-        .add-income-section {
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
             background: var(--bg-card);
-            border: var(--border-glass);
-            border-radius: 24px;
-            padding: 2rem;
-            backdrop-filter: blur(20px);
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-raised);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
         }
 
-        .add-income-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #22c55e 0%, #06b6d4 50%, #6366f1 100%);
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
         }
 
-        .add-income-header {
-            margin-bottom: 1.5rem;
+        .toast.success {
+            border-left: 4px solid var(--success);
         }
 
-        .add-income-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .toast.error {
+            border-left: 4px solid var(--accent);
         }
 
-        .add-income-title h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: linear-gradient(135deg, #22c55e 0%, #06b6d4 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .dashboard-main {
+                padding: 1.5rem 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .goal-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .month-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
-        .add-income-icon {
-            font-size: 1.8rem;
-        }
-
-        .add-income-form {
+        /* Monthly Detail Modal Styles */
+        .month-stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr auto;
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
-            align-items: end;
+            margin-bottom: 2rem;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .form-group label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .income-input {
-            padding: 0.85rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: var(--border-glass);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Prompt', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .income-input:focus {
-            outline: none;
-            border-color: #22c55e;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
-        }
-
-        .income-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .income-input[readonly] {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: rgba(34, 197, 94, 0.3);
-            cursor: default;
-        }
-
-        .add-income-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.85rem 1.75rem;
-            background: linear-gradient(135deg, #22c55e 0%, #06b6d4 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-family: 'Prompt', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 52px;
-        }
-
-        .add-income-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
-        }
-
-        .add-income-btn:active {
-            transform: translateY(0);
-        }
-
-        .add-income-btn.loading {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .add-income-btn .btn-icon {
-            font-size: 1.1rem;
-        }
-
-        .add-income-status {
-            margin-top: 1rem;
+        .month-stat-card {
+            background: var(--bg-main);
             padding: 1rem;
             border-radius: 12px;
-            font-weight: 500;
-            animation: fadeInUp 0.3s ease;
-        }
-
-        .add-income-status.success {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .add-income-status.error {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        /* Goal Section */
-        .goal-section {
-            background: var(--bg-card);
-            border: var(--border-glass);
-            border-radius: 24px;
-            padding: 2rem;
-            backdrop-filter: blur(20px);
-            margin-bottom: 2rem;
-        }
-
-        .goal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .goal-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .goal-title h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .goal-icon {
-            font-size: 1.8rem;
-        }
-
-        .goal-controls {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-        }
-
-        .goal-input {
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: var(--border-glass);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Prompt', sans-serif;
-            font-size: 1rem;
-            width: 180px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .goal-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .goal-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .goal-btn {
-            padding: 0.75rem 1.5rem;
-            background: var(--gradient-1);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-family: 'Prompt', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .goal-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
-        }
-
-        .goal-progress-container {
-            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .goal-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .goal-info>div {
             text-align: center;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .goal-info>div:hover {
-            background: rgba(255, 255, 255, 0.06);
-            transform: translateY(-2px);
-        }
-
-        .goal-info .label {
-            display: block;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
+        .month-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
             margin-bottom: 0.5rem;
         }
 
-        .goal-info .value {
-            font-size: 1.4rem;
-            font-weight: 600;
-        }
-
-        .goal-current .value {
-            color: var(--accent-tertiary);
-        }
-
-        .goal-target .value {
-            color: var(--accent-secondary);
-        }
-
-        .goal-remaining .value {
-            color: #f472b6;
-        }
-
-        /* Progress Bar - Tube Style */
-        .progress-bar-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .progress-bar-tube {
-            flex: 1;
-            height: 40px;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(30, 30, 60, 0.8) 50%, rgba(0, 0, 0, 0.4) 100%);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                inset 0 4px 8px rgba(0, 0, 0, 0.5),
-                inset 0 -2px 4px rgba(255, 255, 255, 0.1),
-                0 2px 10px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .progress-bar-fill {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            bottom: 4px;
-            width: 0%;
-            background: linear-gradient(180deg,
-                    rgba(99, 102, 241, 1) 0%,
-                    rgba(139, 92, 246, 1) 40%,
-                    rgba(6, 182, 212, 1) 100%);
-            border-radius: 16px;
-            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow:
-                0 0 20px rgba(99, 102, 241, 0.6),
-                0 0 40px rgba(139, 92, 246, 0.4);
-            overflow: hidden;
-        }
-
-        .progress-bar-shine {
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 50%;
-            background: linear-gradient(90deg,
-                    transparent 0%,
-                    rgba(255, 255, 255, 0.3) 50%,
-                    transparent 100%);
-            animation: shine 2s ease-in-out infinite;
-        }
-
-        @keyframes shine {
-            0% {
-                left: -100%;
-            }
-
-            50%,
-            100% {
-                left: 200%;
-            }
-        }
-
-        .progress-bar-bubbles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-
-        .bubble {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: bubbleRise 3s ease-in-out infinite;
-        }
-
-        .bubble:nth-child(1) {
-            width: 8px;
-            height: 8px;
-            left: 20%;
-            animation-delay: 0s;
-        }
-
-        .bubble:nth-child(2) {
-            width: 6px;
-            height: 6px;
-            left: 50%;
-            animation-delay: 1s;
-        }
-
-        .bubble:nth-child(3) {
-            width: 10px;
-            height: 10px;
-            left: 75%;
-            animation-delay: 2s;
-        }
-
-        @keyframes bubbleRise {
-
-            0%,
-            100% {
-                bottom: 5px;
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 0.6;
-            }
-
-            90% {
-                opacity: 0.6;
-            }
-
-            100% {
-                bottom: 30px;
-                opacity: 0;
-            }
-        }
-
-        .progress-percentage {
-            min-width: 70px;
-            font-size: 1.5rem;
+        .month-stat-value {
+            font-size: 1.25rem;
             font-weight: 700;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: right;
+            color: var(--secondary);
+            font-family: 'Inter', sans-serif;
         }
 
-        .goal-status {
-            text-align: center;
-            padding: 1rem;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .daily-table-container {
+            max-height: 400px;
+            overflow-y: auto;
         }
 
-        .goal-status.success {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
-            color: #22c55e;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .goal-status.in-progress {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--text-secondary);
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 20px 5px rgba(34, 197, 94, 0.2);
-            }
-        }
-
-        /* Responsive - Tablet */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .header p {
-                font-size: 0.95rem;
-            }
-
-            .stat-card {
-                padding: 1.5rem;
-            }
-
-            .stat-card .value {
-                font-size: 1.5rem;
-            }
-
-            .chart-container {
-                height: 300px;
-            }
-
-            /* Goal section tablet */
-            .goal-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .goal-controls {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .goal-input {
-                flex: 1;
-                width: auto;
-            }
-
-            .goal-info {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.75rem;
-            }
-
-            .goal-info .value {
-                font-size: 1.2rem;
-            }
-
-            /* Modal tablet */
-            .modal-content {
-                padding: 1.5rem;
-                margin: 1rem;
-            }
-
-            .modal-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Responsive - Mobile */
-        @media (max-width: 480px) {
-            .container {
-                padding: 0.75rem;
-            }
-
-            .header {
-                margin-bottom: 1.5rem;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .header p {
-                font-size: 0.85rem;
-            }
-
-            /* Year filter mobile */
-            .year-filter {
-                gap: 0.5rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .year-btn {
-                padding: 0.6rem 1.25rem;
-                font-size: 0.9rem;
-                border-radius: 40px;
-            }
-
-            /* Stats grid mobile */
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            /* Add Income mobile */
-            .add-income-section {
-                padding: 1.25rem;
-                border-radius: 16px;
-                margin-bottom: 1.5rem;
-            }
-
-            .add-income-title h2 {
-                font-size: 1.2rem;
-            }
-
-            .add-income-icon {
-                font-size: 1.5rem;
-            }
-
-            .add-income-form {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
-            }
-
-            .income-input {
-                width: 100%;
-            }
-
-            .add-income-btn {
-                width: 100%;
-                padding: 0.85rem;
-            }
-
-            .stat-card {
-                padding: 1.25rem;
-                border-radius: 16px;
-            }
-
-            .stat-card .icon {
-                width: 48px;
-                height: 48px;
-                font-size: 1.5rem;
-                border-radius: 12px;
-                margin-bottom: 0.75rem;
-            }
-
-            .stat-card .label {
-                font-size: 0.85rem;
-            }
-
-            .stat-card .value {
-                font-size: 1.4rem;
-            }
-
-            .stat-card .sub-value {
-                font-size: 0.8rem;
-            }
-
-            /* Goal section mobile */
-            .goal-section {
-                padding: 1.25rem;
-                border-radius: 16px;
-                margin-bottom: 1.5rem;
-            }
-
-            .goal-header {
-                flex-direction: column;
-                gap: 1rem;
-                margin-bottom: 1.25rem;
-            }
-
-            .goal-title h2 {
-                font-size: 1.2rem;
-            }
-
-            .goal-icon {
-                font-size: 1.5rem;
-            }
-
-            .goal-controls {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .goal-input {
-                width: 100%;
-                padding: 0.85rem 1rem;
-                font-size: 1rem;
-            }
-
-            .goal-btn {
-                width: 100%;
-                padding: 0.85rem;
-                font-size: 1rem;
-            }
-
-            .goal-info {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
-                margin-bottom: 1.25rem;
-            }
-
-            .goal-info>div {
-                padding: 0.85rem;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .goal-info .label {
-                margin-bottom: 0;
-                font-size: 0.9rem;
-            }
-
-            .goal-info .value {
-                font-size: 1.2rem;
-            }
-
-            /* Progress bar mobile */
-            .progress-bar-wrapper {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .progress-bar-tube {
-                width: 100%;
-                height: 32px;
-            }
-
-            .progress-percentage {
-                width: 100%;
-                text-align: center;
-                font-size: 1.3rem;
-            }
-
-            .goal-status {
-                padding: 0.85rem;
-                font-size: 0.9rem;
-            }
-
-            /* Chart section mobile */
-            .chart-section {
-                padding: 1rem;
-                border-radius: 16px;
-                margin-bottom: 1.5rem;
-            }
-
-            .chart-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-                margin-bottom: 1rem;
-            }
-
-            .chart-header h2 {
-                font-size: 1.1rem;
-            }
-
-            .chart-hint {
-                font-size: 0.75rem;
-            }
-
-            .chart-container {
-                height: 250px;
-            }
-
-            /* Modal mobile */
-            .modal-overlay {
-                padding: 0.5rem;
-                align-items: flex-end;
-            }
-
-            .modal-content {
-                padding: 1.25rem;
-                border-radius: 20px 20px 0 0;
-                max-height: 85vh;
-                margin: 0;
-            }
-
-            .modal-header {
-                margin-bottom: 0.75rem;
-                padding-bottom: 0.5rem;
-            }
-
-            .modal-header h2 {
-                font-size: 1.3rem;
-            }
-
-            .close-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.25rem;
-            }
-
-            .modal-stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
-                margin-bottom: 0.75rem;
-            }
-
-            .modal-stat {
-                padding: 0.6rem;
-                border-radius: 10px;
-            }
-
-            .modal-stat .label {
-                font-size: 0.7rem;
-            }
-
-            .modal-stat .value {
-                font-size: 1rem;
-            }
-
-            /* Table mobile */
-            .table-scroll-container {
-                max-height: 200px;
-            }
-
-            .daily-table th,
-            .daily-table td {
-                padding: 0.65rem 0.75rem;
-                font-size: 0.9rem;
-            }
-
-            .daily-table th {
-                font-size: 0.75rem;
-            }
-
-            /* Loading mobile */
-            .loading {
-                padding: 3rem;
-            }
-
-            .spinner {
-                width: 50px;
-                height: 50px;
-            }
-
-            .loading-text {
-                font-size: 0.9rem;
-            }
-        }
-
-        /* Extra small devices */
-        @media (max-width: 360px) {
-            .header h1 {
-                font-size: 1.3rem;
-            }
-
-            .stat-card .value {
-                font-size: 1.25rem;
-            }
-
-            .goal-title h2 {
-                font-size: 1.1rem;
-            }
-
-            .year-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-            }
-        }
-
-        /* Touch-friendly improvements */
-        @media (hover: none) and (pointer: coarse) {
-
-            .year-btn,
-            .goal-btn,
-            .close-btn {
-                min-height: 44px;
-                min-width: 44px;
-            }
-
-            .stat-card:hover {
-                transform: none;
-            }
-
-            .stat-card:active {
-                transform: scale(0.98);
-            }
-
-            .goal-info>div:hover {
-                transform: none;
-            }
-        }
-
-        /* Safe area for notched devices */
-        @supports (padding: max(0px)) {
-            .container {
-                padding-left: max(0.75rem, env(safe-area-inset-left));
-                padding-right: max(0.75rem, env(safe-area-inset-right));
-                padding-bottom: max(1rem, env(safe-area-inset-bottom));
-            }
+        .daily-table-container table {
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="bg-animation"></div>
 
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1>💰 Freelance Income Dashboard</h1>
-            <p>ติดตามรายได้จากงาน Freelance ของคุณ</p>
-        </header>
+    <!-- Loading -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
 
-        <!-- Year Filter -->
-        <div class="year-filter" id="yearFilter">
-            <!-- Will be populated dynamically -->
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <i class='bx bxs-dashboard'></i>
+            <span>Freelance Income Dashboard</span>
         </div>
 
-        <!-- Loading State -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p class="loading-text">กำลังโหลดข้อมูล...</p>
+        <div class="year-pills" id="yearFilter">
+            <!-- JS populated -->
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-main">
+
+        <!-- Hero Card -->
+        <section class="hero-card">
+            <div class="hero-content">
+                <h1>Welcome Back! 🎉</h1>
+                <p style="color: var(--text-secondary);">Track your freelance income and achieve your financial goals.
+                </p>
+
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-label">Total Income</span>
+                        <span class="hero-stat-value" style="color: var(--success);" id="heroTotal">฿0</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-label">This Year</span>
+                        <span class="hero-stat-value" style="color: var(--secondary);" id="heroYear">2569</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-label">Goal Progress</span>
+                        <span class="hero-stat-value" style="color: var(--primary);" id="heroGoal">0%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card income">
+                <div class="stat-icon"><i class='bx bx-money'></i></div>
+                <div class="stat-label">Total Income</div>
+                <div class="stat-value" id="totalIncome">฿0</div>
+            </div>
+
+            <div class="stat-card average">
+                <div class="stat-icon"><i class='bx bx-line-chart'></i></div>
+                <div class="stat-label">Average Monthly</div>
+                <div class="stat-value" id="avgIncome">฿0</div>
+            </div>
+
+            <div class="stat-card best">
+                <div class="stat-icon"><i class='bx bxs-trophy'></i></div>
+                <div class="stat-label">Best Month</div>
+                <div class="stat-value" id="bestMonth">฿0</div>
+                <div class="stat-sub" id="bestMonthName">-</div>
+            </div>
+
+            <div class="stat-card action" onclick="openAddIncomeModal()">
+                <div class="stat-icon"><i class='bx bx-plus-circle'></i></div>
+                <div class="stat-label">Quick Add</div>
+                <div class="stat-value">Add New Income</div>
+            </div>
         </div>
 
-        <!-- Main Content -->
-        <div id="mainContent" style="display: none;">
-            <!-- Stats Cards -->
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="icon">💰</div>
-                    <div class="label">รายได้รวม</div>
-                    <div class="value" id="totalIncome">฿0</div>
-                    <div class="sub-value" id="totalIncomeYear"></div>
+        <!-- Chart Section -->
+        <section class="chart-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class='bx bxs-bar-chart-alt-2'></i>
+                    Income Overview
                 </div>
-                <div class="stat-card">
-                    <div class="icon">📊</div>
-                    <div class="label">เฉลี่ยต่อเดือน</div>
-                    <div class="value" id="avgMonthly">฿0</div>
-                    <div class="sub-value" id="avgMonthlyInfo"></div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: var(--primary);"></span>
+                        <span>Monthly</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: var(--secondary);"></span>
+                        <span>Average</span>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="icon">🏆</div>
-                    <div class="label">เดือนที่ดีที่สุด</div>
-                    <div class="value" id="bestMonth">-</div>
-                    <div class="sub-value" id="bestMonthAmount"></div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">📅</div>
-                    <div class="label">จำนวนวันที่มีรายได้</div>
-                    <div class="value" id="totalDays">0</div>
-                    <div class="sub-value">วัน</div>
+            </div>
+            <div class="chart-container">
+                <canvas id="incomeChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Goal Section -->
+        <section class="goal-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class='bx bxs-flag-alt'></i>
+                    Financial Goal
                 </div>
             </div>
 
-            <!-- Add Income Section -->
-            <div class="add-income-section">
-                <div class="add-income-header">
-                    <div class="add-income-title">
-                        <span class="add-income-icon">💸</span>
-                        <h2>เพิ่มรายได้</h2>
-                    </div>
-                </div>
-                <div class="add-income-form">
-                    <div class="form-group">
-                        <label for="incomeDate">📅 วันที่</label>
-                        <input type="text" id="incomeDate" class="income-input" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="incomeAmount">💰 จำนวนเงิน (บาท)</label>
-                        <input type="number" id="incomeAmount" class="income-input" placeholder="ใส่จำนวนเงิน..."
-                            min="0" step="100">
-                    </div>
-                    <button class="add-income-btn" id="addIncomeBtn" onclick="addNewIncome()">
-                        <span class="btn-icon">➕</span>
-                        <span class="btn-text">บันทึกรายได้</span>
-                    </button>
-                </div>
-                <div class="add-income-status" id="addIncomeStatus" style="display: none;"></div>
-            </div>
-
-            <!-- Goal Section -->
-            <div class="goal-section">
-                <div class="goal-header">
-                    <div class="goal-title">
-                        <span class="goal-icon">🎯</span>
-                        <h2>เป้าหมายรายได้</h2>
-                    </div>
-                    <div class="goal-controls">
-                        <input type="number" id="goalInput" class="goal-input" placeholder="ตั้งเป้าหมาย..." min="0"
-                            step="1000">
-                        <button class="goal-btn" onclick="saveGoal()">ตั้งเป้า</button>
+            <div class="goal-content">
+                <div class="goal-gauge-wrapper" style="position: relative;">
+                    <svg class="circular-gauge" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+                        <path class="gauge-bg" d="M 20 100 A 80 80 0 0 1 180 100" fill="none"
+                            stroke="rgba(255,255,255,0.05)" stroke-width="12" stroke-linecap="round" />
+                        <path id="gaugeProgress" class="gauge-progress" d="M 20 100 A 80 80 0 0 1 180 100" fill="none"
+                            stroke="url(#gaugeGradient)" stroke-width="12" stroke-linecap="round"
+                            stroke-dasharray="251.2" stroke-dashoffset="251.2" />
+                        <defs>
+                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="gauge-center">
+                        <div class="gauge-percentage" id="gaugePercent">0%</div>
+                        <div class="gauge-label">of goal</div>
                     </div>
                 </div>
 
-                <div class="goal-progress-container" id="goalContainer" style="display: none;">
-                    <div class="goal-info">
-                        <div class="goal-current">
-                            <span class="label">รายได้ปัจจุบัน</span>
-                            <span class="value" id="goalCurrent">฿0</span>
-                        </div>
-                        <div class="goal-target">
-                            <span class="label">เป้าหมาย</span>
-                            <span class="value" id="goalTarget">฿0</span>
-                        </div>
-                        <div class="goal-remaining">
-                            <span class="label">เหลืออีก</span>
-                            <span class="value" id="goalRemaining">฿0</span>
-                        </div>
+                <div class="goal-info">
+                    <div class="goal-input-row">
+                        <input type="text" id="goalInput" class="goal-input" placeholder="Enter your goal...">
+                        <button onclick="setGoal()" class="btn-primary">Set Goal</button>
                     </div>
 
-                    <div class="progress-bar-wrapper">
-                        <div class="progress-bar-tube">
-                            <div class="progress-bar-fill" id="progressFill">
-                                <div class="progress-bar-shine"></div>
-                            </div>
-                            <div class="progress-bar-bubbles">
-                                <div class="bubble"></div>
-                                <div class="bubble"></div>
-                                <div class="bubble"></div>
+                    <div class="goal-stats-grid">
+                        <div class="goal-stat-box">
+                            <div class="goal-stat-box-label">Target</div>
+                            <div class="goal-stat-box-value" id="goalTargetDisplay">฿0</div>
+                        </div>
+                        <div class="goal-stat-box">
+                            <div class="goal-stat-box-label">To Go</div>
+                            <div class="goal-stat-box-value" style="color: var(--success);" id="goalRemainingDisplay">฿0
                             </div>
                         </div>
-                        <div class="progress-percentage" id="progressPercent">0%</div>
                     </div>
+                </div>
+            </div>
+        </section>
 
-                    <div class="goal-status" id="goalStatus"></div>
+        <!-- Monthly Breakdown -->
+        <section class="breakdown-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class='bx bxs-calendar'></i>
+                    Monthly Breakdown
                 </div>
             </div>
 
-            <!-- Monthly Chart -->
-            <div class="chart-section">
-                <div class="chart-header">
-                    <h2>📈 รายได้รายเดือน</h2>
-                    <span class="chart-hint">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M12 16v-4M12 8h.01"></path>
-                        </svg>
-                        คลิกที่แท่งกราฟเพื่อดูรายละเอียดรายวัน
-                    </span>
-                </div>
-                <div class="chart-container">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Income</th>
+                        <th>vs Average</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyTable">
+                    <!-- JS populated -->
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <!-- FAB -->
+    <button class="fab" onclick="openAddIncomeModal()">
+        <i class='bx bx-plus'></i>
+    </button>
+
+    <!-- Add Income Modal -->
+    <div id="addIncomeModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Add New Income</div>
+                <button class="close-btn" onclick="closeAddIncomeModal()">×</button>
             </div>
+
+            <div class="form-group">
+                <label class="form-label">วันที่</label>
+                <input type="text" id="incomeDate" class="form-input" placeholder="8/1/2569"
+                    pattern="\d{1,2}/\d{1,2}/\d{4}">
+                <small
+                    style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.25rem; display: block;">รูปแบบ:
+                    วัน/เดือน/ปี (8/1/2569)</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Amount (THB)</label>
+                <input type="number" id="incomeAmount" class="form-input" placeholder="0.00">
+            </div>
+
+            <button onclick="submitIncome()" class="btn-primary" style="width:100%;">Add Income</button>
         </div>
     </div>
 
-    <!-- Drill-down Modal -->
-    <div class="modal-overlay" id="drilldownModal">
-        <div class="modal-content">
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Monthly Detail Modal -->
+    <div id="monthDetailModal" class="modal-overlay">
+        <div class="modal modal-wide">
             <div class="modal-header">
-                <h2 id="modalTitle">รายละเอียดรายวัน</h2>
-                <button class="close-btn" onclick="closeModal()">✕</button>
+                <div class="modal-title" id="monthDetailTitle">มกราคม 2569</div>
+                <button class="close-btn" onclick="closeMonthDetailModal()">×</button>
             </div>
 
-            <div class="modal-stats" id="modalStats">
-                <div class="modal-stat">
-                    <div class="label">รายได้รวม</div>
-                    <div class="value" id="modalTotal">฿0</div>
+            <!-- Monthly Stats -->
+            <div class="month-stats-grid">
+                <div class="month-stat-card">
+                    <div class="month-stat-label">รายได้รวม</div>
+                    <div class="month-stat-value" id="monthTotalIncome">฿0</div>
                 </div>
-                <div class="modal-stat">
-                    <div class="label">จำนวนวันที่ทำงาน</div>
-                    <div class="value" id="modalDays">0</div>
+                <div class="month-stat-card">
+                    <div class="month-stat-label">จำนวนวันทำงาน</div>
+                    <div class="month-stat-value" id="monthWorkDays">0</div>
                 </div>
-                <div class="modal-stat">
-                    <div class="label">เฉลี่ยต่อวัน</div>
-                    <div class="value" id="modalAvg">฿0</div>
+                <div class="month-stat-card">
+                    <div class="month-stat-label">เฉลี่ยต่อวัน</div>
+                    <div class="month-stat-value" id="monthAvgPerDay">฿0</div>
                 </div>
-                <div class="modal-stat">
-                    <div class="label">มากที่สุด</div>
-                    <div class="value" id="modalMax">฿0</div>
+                <div class="month-stat-card">
+                    <div class="month-stat-label">มากที่สุด</div>
+                    <div class="month-stat-value" id="monthMaxDay">฿0</div>
                 </div>
             </div>
 
-            <div class="modal-chart-container">
-                <canvas id="dailyChart"></canvas>
-            </div>
-
-            <div class="table-scroll-container">
-                <table class="daily-table" id="dailyTable">
+            <!-- Daily Breakdown Table -->
+            <div class="daily-table-container">
+                <table>
                     <thead>
                         <tr>
                             <th>วันที่</th>
@@ -1527,6 +1013,7 @@
                         </tr>
                     </thead>
                     <tbody id="dailyTableBody">
+                        <!-- Populated by JS -->
                     </tbody>
                 </table>
             </div>
@@ -1534,7 +1021,7 @@
     </div>
 
     <script>
-        // ==================== WEBHOOK CONFIG ====================
+        // Webhook Configuration
         const WEBHOOK_CONFIG = {
             BASE_URL: 'https://n8n.srv1038568.hstgr.cloud/webhook/Freelance',
             ACTIONS: {
@@ -1545,771 +1032,458 @@
             }
         };
 
-        // ==================== GLOBALS ====================
-        let allData = null;
-        let monthlyChart = null;
-        let dailyChart = null;
-        let selectedYear = null;
+        // State
+        let dashboardData = null;
+        let currentYear = new Date().getFullYear() + 543;
+        let myChart = null;
+        let currentGoal = 0;
 
-        // ==================== WEBHOOK HELPER ====================
-        async function callWebhook(action, data = null) {
-            const url = `${WEBHOOK_CONFIG.BASE_URL}?action=${action}`;
+        // Helper: Call Webhook
+        async function callWebhook(action, params = {}) {
+            const url = new URL(WEBHOOK_CONFIG.BASE_URL);
+            url.searchParams.append('action', action);
 
-            const options = {
-                method: data ? 'POST' : 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            if (data) {
-                options.body = JSON.stringify(data);
+            for (const key in params) {
+                url.searchParams.append(key, params[key]);
             }
 
-            const response = await fetch(url, options);
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Webhook error: ${response.status}`);
             }
+
             return await response.json();
         }
 
-        // ==================== DATA TRANSFORMATION ====================
-        function processWebhookData(webhookData) {
-            // Transform raw webhook data to internal format
-            // webhookData can be either:
-            // 1. { data: [...] } - wrapped response
-            // 2. [...] - direct array from n8n merge node
-
-            let rawData = webhookData;
-
-            // Handle both wrapped and unwrapped formats
-            if (webhookData && webhookData.data) {
-                rawData = webhookData.data;
-            } else if (!Array.isArray(webhookData)) {
-                return { monthly: [], stats: {}, years: [], goal: null };
+        // Process Webhook Data (supports merged Goal + Freelance format)
+        function processWebhookData(rawData) {
+            if (!Array.isArray(rawData) || rawData.length === 0) {
+                return { years: [], monthly: [], goal: null };
             }
 
-            const allRecords = [];
-            let goalValue = null;
+            let goal = null;
+            const freelanceRecords = [];
 
-            // Separate Goal records from Freelance records
-            rawData.forEach(record => {
-                // Check if this is a Goal record
-                if (record.Goal !== undefined) {
-                    // Parse Goal (remove commas and convert to number)
-                    const goalStr = String(record.Goal).replace(/,/g, '');
-                    goalValue = parseFloat(goalStr) || null;
-                    return; // Skip to next record
+            // แยก Goal record จาก Freelance records
+            rawData.forEach(item => {
+                if (item.Goal !== undefined && item.Goal !== null) {
+                    const goalStr = String(item.Goal).replace(/,/g, '');
+                    goal = parseFloat(goalStr) || 0;
+                } else if (item.Date && item.Money) {
+                    freelanceRecords.push(item);
                 }
-
-                // This is a Freelance record (has Date and Money)
-                const dateStr = record.Date || record.date;
-                const moneyStr = String(record.Money || record.money || '0');
-
-                // Remove commas from money string and parse
-                const moneyValue = parseFloat(moneyStr.replace(/,/g, ''));
-
-                if (!dateStr || !moneyValue) return;
-
-                // Parse date (expected format: d/m/yyyy or similar)
-                let dateObj;
-                if (dateStr instanceof Date) {
-                    dateObj = dateStr;
-                } else {
-                    const parts = String(dateStr).split('/');
-                    if (parts.length === 3) {
-                        const day = parseInt(parts[0]);
-                        const month = parseInt(parts[1]) - 1;
-                        const year = parseInt(parts[2]);
-                        // Convert Buddhist Era to Christian Era if needed
-                        const ceYear = year > 2500 ? year - 543 : year;
-                        dateObj = new Date(ceYear, month, day);
-                    } else {
-                        dateObj = new Date(dateStr);
-                    }
-                }
-
-                // Determine year in Buddhist Era
-                const yearValue = dateObj.getFullYear();
-                const buddhistYear = yearValue > 2500 ? yearValue : yearValue + 543;
-
-                allRecords.push({
-                    date: dateObj,
-                    dateStr: `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${buddhistYear}`,
-                    day: dateObj.getDate(),
-                    month: dateObj.getMonth() + 1,
-                    year: buddhistYear,
-                    money: moneyValue
-                });
             });
 
-            // Group by month
+            // แปลง Freelance records
+            const yearSet = new Set();
             const monthlyMap = {};
-            allRecords.forEach(item => {
-                const key = `${item.year}-${String(item.month).padStart(2, '0')}`;
-                if (!monthlyMap[key]) {
-                    monthlyMap[key] = {
-                        year: item.year,
-                        month: item.month,
-                        monthName: getThaiMonthName(item.month),
+
+            freelanceRecords.forEach(record => {
+                const moneyStr = String(record.Money).replace(/,/g, '');
+                const amount = parseFloat(moneyStr) || 0;
+
+                const dateParts = record.Date.split('/');
+                if (dateParts.length !== 3) return;
+
+                const day = parseInt(dateParts[0]);
+                let month = parseInt(dateParts[1]);
+                let year = parseInt(dateParts[2]);
+
+                if (year < 2400) year += 543;
+
+                yearSet.add(year);
+
+                const monthKey = `${year}-${month}`;
+                if (!monthlyMap[monthKey]) {
+                    monthlyMap[monthKey] = {
+                        year: year,
+                        month: month,
+                        monthName: getThaiMonthName(month),
                         total: 0,
                         count: 0,
                         days: []
                     };
                 }
-                monthlyMap[key].total += item.money;
-                monthlyMap[key].count++;
-                monthlyMap[key].days.push({
-                    day: item.day,
-                    date: item.dateStr,
-                    amount: item.money
+
+                monthlyMap[monthKey].total += amount;
+                monthlyMap[monthKey].count++;
+                monthlyMap[monthKey].days.push({
+                    day: day,
+                    amount: amount
                 });
             });
 
-            // Convert to array and sort
-            const monthlyData = Object.values(monthlyMap).sort((a, b) => {
-                if (a.year !== b.year) return a.year - b.year;
-                return a.month - b.month;
-            });
+            const years = Array.from(yearSet).sort((a, b) => a - b);
+            const monthly = Object.values(monthlyMap);
 
-            // Calculate stats
-            const totalIncome = allRecords.reduce((sum, item) => sum + item.money, 0);
-            const avgMonthly = monthlyData.length > 0 ? totalIncome / monthlyData.length : 0;
-            const bestMonth = monthlyData.length > 0
-                ? monthlyData.reduce((max, item) => item.total > max.total ? item : max, monthlyData[0])
-                : null;
-            const totalDays = allRecords.length;
-
-            // Get available years
-            const years = [...new Set(allRecords.map(item => item.year))].sort();
-
-            return {
-                monthly: monthlyData,
-                stats: {
-                    totalIncome: totalIncome,
-                    avgMonthly: avgMonthly,
-                    bestMonth: bestMonth ? `${bestMonth.monthName} ${bestMonth.year}` : '-',
-                    bestMonthAmount: bestMonth ? bestMonth.total : 0,
-                    totalDays: totalDays
-                },
-                years: years,
-                goal: goalValue  // Include goal in response
-            };
+            return { years, monthly, goal };
         }
 
         function getThaiMonthName(month) {
-            const months = [
-                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
-                'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
-                'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-            ];
-            return months[month - 1] || '';
+            const names = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            return names[month - 1] || '';
         }
 
-        // ==================== INIT ====================
-        document.addEventListener('DOMContentLoaded', () => {
+        // Init
+        window.addEventListener('load', () => {
+            // Set today's date in Thai format (d/M/yyyy)
+            const today = new Date();
+            const thaiYear = today.getFullYear() + 543;
+            const dateStr = `${today.getDate()}/${today.getMonth() + 1}/${thaiYear}`;
+            document.getElementById('incomeDate').value = dateStr;
+
             loadData();
-            initIncomeForm();
         });
 
-        // ==================== ADD INCOME ====================
-        function initIncomeForm() {
-            // Set today's date in Buddhist Era format
-            const today = new Date();
-            const day = today.getDate();
-            const month = today.getMonth() + 1;
-            const year = today.getFullYear() + 543; // Convert to Buddhist Era
-
-            const dateStr = `${day}/${month}/${year}`;
-            document.getElementById('incomeDate').value = dateStr;
-        }
-
-        async function addNewIncome() {
-            const dateInput = document.getElementById('incomeDate');
-            const amountInput = document.getElementById('incomeAmount');
-            const btn = document.getElementById('addIncomeBtn');
-            const statusEl = document.getElementById('addIncomeStatus');
-
-            const dateStr = dateInput.value;
-            const amount = parseFloat(amountInput.value);
-
-            // Validate
-            if (!amount || amount <= 0) {
-                statusEl.className = 'add-income-status error';
-                statusEl.innerHTML = '⚠️ กรุณาใส่จำนวนเงินที่ถูกต้อง';
-                statusEl.style.display = 'block';
-                amountInput.style.borderColor = '#ef4444';
-                setTimeout(() => {
-                    amountInput.style.borderColor = '';
-                }, 2000);
-                return;
-            }
-
-            // Show loading
-            btn.classList.add('loading');
-            btn.innerHTML = '<span class="btn-icon">⏳</span><span class="btn-text">กำลังบันทึก...</span>';
-
-            try {
-                const result = await callWebhook(WEBHOOK_CONFIG.ACTIONS.ADD_INCOME, {
-                    date: dateStr,
-                    money: amount
-                });
-
-                if (result.success) {
-                    // Success
-                    statusEl.className = 'add-income-status success';
-                    statusEl.innerHTML = `✅ ${result.message || 'เพิ่มรายได้สำเร็จ'}`;
-                    statusEl.style.display = 'block';
-
-                    // Clear amount input
-                    amountInput.value = '';
-
-                    // Animate button
-                    btn.innerHTML = '<span class="btn-icon">✓</span><span class="btn-text">บันทึกสำเร็จ!</span>';
-                    btn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
-
-                    // Reload data after 1.5 seconds
-                    setTimeout(async () => {
-                        await loadData();
-                        if (currentGoal) {
-                            updateGoalProgress();
-                        }
-                    }, 1500);
-
-                } else {
-                    throw new Error(result.message || 'เกิดข้อผิดพลาด');
-                }
-
-            } catch (error) {
-                statusEl.className = 'add-income-status error';
-                statusEl.innerHTML = `❌ ${error.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่'}`;
-                statusEl.style.display = 'block';
-            } finally {
-                // Reset button after delay
-                setTimeout(() => {
-                    btn.classList.remove('loading');
-                    btn.innerHTML = '<span class="btn-icon">➕</span><span class="btn-text">บันทึกรายได้</span>';
-                    btn.style.background = '';
-                }, 2000);
-
-                // Hide status after 5 seconds
-                setTimeout(() => {
-                    statusEl.style.display = 'none';
-                }, 5000);
-            }
-        }
-
-        // ==================== DATA LOADING ====================
         async function loadData() {
+            showLoading(true);
+
             try {
-                const webhookData = await callWebhook(WEBHOOK_CONFIG.ACTIONS.GET_DATA);
-                const result = processWebhookData(webhookData);
+                const rawData = await callWebhook(WEBHOOK_CONFIG.ACTIONS.GET_DATA);
+                const result = processWebhookData(rawData);
 
-                allData = result;
+                dashboardData = { years: result.years, monthly: result.monthly };
 
-                // Set default year (latest)
-                if (result.years && result.years.length > 0) {
-                    selectedYear = result.years[result.years.length - 1];
-                }
-
-                renderYearFilter();
-                renderDashboard();
-
-                // Initialize goal from webhook data
+                // ตั้งค่า Goal ถ้ามี
                 if (result.goal) {
                     currentGoal = result.goal;
                     document.getElementById('goalInput').value = currentGoal;
-                    updateGoalProgress();
                 }
 
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
+                setupYearTabs(result.years);
+
+                if (result.years && result.years.length > 0) {
+                    if (!result.years.includes(currentYear)) {
+                        currentYear = result.years[result.years.length - 1];
+                    }
+                }
+
+                renderDashboard(currentYear);
+                showLoading(false);
+
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('loading').innerHTML = `
-          <div style="color: #ef4444; text-align: center;">
-            <p style="font-size: 3rem; margin-bottom: 1rem;">⚠️</p>
-            <p>เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">${error.message || error}</p>
-          </div>
-        `;
+                showToast('Error loading data: ' + error.message, 'error');
+                showLoading(false);
             }
         }
 
-        // ==================== YEAR FILTER ====================
-        function renderYearFilter() {
+        function setupYearTabs(years) {
             const container = document.getElementById('yearFilter');
-
-            if (!allData.years || allData.years.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-
-            // Add "All Years" button
-            let html = `<button class="year-btn ${!selectedYear ? 'active' : ''}" onclick="filterByYear(null)">ทุกปี</button>`;
-
-            allData.years.forEach(year => {
-                html += `<button class="year-btn ${selectedYear === year ? 'active' : ''}" onclick="filterByYear(${year})">${year}</button>`;
+            let html = '';
+            years.forEach(y => {
+                html += `<button class="year-pill ${y === currentYear ? 'active' : ''}" onclick="switchYear(${y})">${y}</button>`;
             });
-
             container.innerHTML = html;
         }
 
-        function filterByYear(year) {
-            selectedYear = year;
-            renderYearFilter();
-            renderDashboard();
+        function switchYear(year) {
+            currentYear = year;
+            document.querySelectorAll('.year-pill').forEach(el => {
+                el.classList.toggle('active', parseInt(el.innerText) === year);
+            });
+            renderDashboard(year);
         }
 
-        // ==================== DASHBOARD RENDERING ====================
-        function renderDashboard() {
-            const filteredMonthly = selectedYear
-                ? allData.monthly.filter(m => m.year === selectedYear)
-                : allData.monthly;
+        function renderDashboard(year) {
+            if (!dashboardData) return;
 
-            // Calculate stats
-            const totalIncome = filteredMonthly.reduce((sum, m) => sum + m.total, 0);
-            const avgMonthly = filteredMonthly.length > 0 ? totalIncome / filteredMonthly.length : 0;
-            const totalDays = filteredMonthly.reduce((sum, m) => sum + m.count, 0);
-            const bestMonth = filteredMonthly.length > 0
-                ? filteredMonthly.reduce((max, m) => m.total > max.total ? m : max, filteredMonthly[0])
-                : null;
+            const yearData = dashboardData.monthly.filter(m => m.year === year);
+            const total = yearData.reduce((sum, m) => sum + m.total, 0);
+            const count = yearData.length || 1;
+            const avg = total / count;
+            const best = yearData.reduce((max, m) => m.total > max.total ? m : max, { total: 0, monthName: '-' });
 
-            // Update stats cards
-            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
-            document.getElementById('totalIncomeYear').textContent = selectedYear ? `ปี ${selectedYear}` : 'ทุกปี';
+            // Update all UIs
+            document.getElementById('heroTotal').innerText = formatMoney(total);
+            document.getElementById('heroYear').innerText = year;
+            document.getElementById('totalIncome').innerText = formatMoney(total);
+            document.getElementById('avgIncome').innerText = formatMoney(avg);
+            document.getElementById('bestMonth').innerText = formatMoney(best.total);
+            document.getElementById('bestMonthName').innerText = best.monthName;
 
-            document.getElementById('avgMonthly').textContent = formatCurrency(avgMonthly);
-            document.getElementById('avgMonthlyInfo').textContent = `จาก ${filteredMonthly.length} เดือน`;
-
-            document.getElementById('bestMonth').textContent = bestMonth ? bestMonth.monthName : '-';
-            document.getElementById('bestMonthAmount').textContent = bestMonth ? formatCurrency(bestMonth.total) : '';
-
-            document.getElementById('totalDays').textContent = totalDays.toLocaleString();
-
-            // Render chart
-            renderMonthlyChart(filteredMonthly);
+            renderChart(yearData, avg);
+            renderTable(yearData, avg);
+            updateGoalProgress(total);
         }
 
-        // ==================== CHARTS ====================
-        function renderMonthlyChart(data) {
-            const ctx = document.getElementById('monthlyChart').getContext('2d');
+        function renderChart(monthlyData, averageValue) {
+            const ctx = document.getElementById('incomeChart').getContext('2d');
+            const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-            if (monthlyChart) {
-                monthlyChart.destroy();
+            const incomeValues = new Array(12).fill(0);
+            monthlyData.forEach(m => {
+                if (m.month >= 1 && m.month <= 12) {
+                    incomeValues[m.month - 1] = m.total;
+                }
+            });
+
+            const avgValues = new Array(12).fill(averageValue);
+            const currentMonthIndex = new Date().getMonth();
+
+            const bgColors = [];
+            for (let i = 0; i < 12; i++) {
+                if (i === currentMonthIndex && currentYear === (new Date().getFullYear() + 543)) {
+                    bgColors.push('#6366f1');
+                } else if (incomeValues[i] > 0) {
+                    bgColors.push('#334155');
+                } else {
+                    bgColors.push('rgba(255,255,255,0.02)');
+                }
             }
 
-            const labels = data.map(m => `${m.monthName} ${m.year}`);
-            const values = data.map(m => m.total);
+            if (myChart) myChart.destroy();
 
-            // Create gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
-            gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.6)');
-            gradient.addColorStop(1, 'rgba(6, 182, 212, 0.4)');
-
-            monthlyChart = new Chart(ctx, {
+            myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'รายได้ (บาท)',
-                        data: values,
-                        backgroundColor: gradient,
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        borderWidth: 2,
-                        borderRadius: 12,
-                        borderSkipped: false,
-                        hoverBackgroundColor: 'rgba(139, 92, 246, 0.9)',
-                        hoverBorderColor: '#fff',
-                        hoverBorderWidth: 3
-                    }]
+                    labels: allMonths,
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Average',
+                            data: avgValues,
+                            borderColor: '#14b8a6',
+                            borderWidth: 2,
+                            borderDash: [6, 6],
+                            pointRadius: 0,
+                            tension: 0,
+                            order: 1
+                        },
+                        {
+                            type: 'bar',
+                            label: 'Income',
+                            data: incomeValues,
+                            backgroundColor: bgColors,
+                            borderRadius: 6,
+                            barPercentage: 0.7,
+                            order: 2
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    onClick: (event, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const monthData = data[index];
-                            openDrilldown(monthData);
-                        }
-                    },
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(20, 20, 40, 0.95)',
+                            backgroundColor: '#1e293b',
                             titleColor: '#fff',
-                            bodyColor: '#a0a0c0',
-                            borderColor: 'rgba(99, 102, 241, 0.5)',
-                            borderWidth: 1,
-                            padding: 16,
-                            cornerRadius: 12,
-                            titleFont: {
-                                family: 'Prompt',
-                                size: 14,
-                                weight: '600'
-                            },
-                            bodyFont: {
-                                family: 'Prompt',
-                                size: 13
-                            },
                             callbacks: {
-                                title: (items) => items[0].label,
-                                label: (item) => `รายได้: ${formatCurrency(item.raw)}`,
-                                afterLabel: (item) => {
-                                    const monthData = data[item.dataIndex];
-                                    return `จำนวน: ${monthData.count} วัน`;
-                                }
+                                label: (context) => ' ' + context.dataset.label + ': ' + formatMoney(context.raw)
                             }
                         }
                     },
                     scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#a0a0c0',
-                                font: {
-                                    family: 'Prompt',
-                                    size: 12
-                                }
-                            }
-                        },
                         y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.05)'
-                            },
-                            ticks: {
-                                color: '#a0a0c0',
-                                font: {
-                                    family: 'Prompt',
-                                    size: 12
-                                },
-                                callback: (value) => formatCurrency(value)
-                            }
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b' }
                         }
-                    },
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeOutQuart'
                     }
                 }
             });
         }
 
-        function renderDailyChart(days) {
-            const ctx = document.getElementById('dailyChart').getContext('2d');
+        function renderTable(data, avg) {
+            const tbody = document.getElementById('monthlyTable');
+            let html = '';
 
-            if (dailyChart) {
-                dailyChart.destroy();
+            const sorted = [...data].sort((a, b) => b.month - a.month);
+
+            sorted.forEach(m => {
+                const diff = m.total - avg;
+                const percent = avg > 0 ? ((diff / avg) * 100).toFixed(1) : 0;
+                const trend = diff >= 0
+                    ? `<span class="trend-positive">+${percent}% ↑</span>`
+                    : `<span class="trend-negative">${percent}% ↓</span>`;
+
+                html += `
+                    <tr onclick='openMonthDetailModal(${JSON.stringify(m)})' style="cursor:pointer;">
+                        <td>${m.monthName}</td>
+                        <td class="amount-cell">${formatMoney(m.total)}</td>
+                        <td>${trend}</td>
+                    </tr>
+                `;
+            });
+
+            if (sorted.length === 0) {
+                html = '<tr><td colspan="3" style="text-align:center; padding:2rem; color:var(--text-muted);">No data</td></tr>';
             }
 
-            const labels = days.map(d => `${d.day}`);
-            const values = days.map(d => d.amount);
-
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, 'rgba(6, 182, 212, 0.8)');
-            gradient.addColorStop(1, 'rgba(6, 182, 212, 0.1)');
-
-            dailyChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'รายได้ (บาท)',
-                        data: values,
-                        backgroundColor: gradient,
-                        borderColor: '#06b6d4',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#06b6d4',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(20, 20, 40, 0.95)',
-                            titleColor: '#fff',
-                            bodyColor: '#a0a0c0',
-                            borderColor: 'rgba(6, 182, 212, 0.5)',
-                            borderWidth: 1,
-                            padding: 12,
-                            cornerRadius: 8,
-                            titleFont: {
-                                family: 'Prompt',
-                                size: 13
-                            },
-                            bodyFont: {
-                                family: 'Prompt',
-                                size: 12
-                            },
-                            callbacks: {
-                                title: (items) => `วันที่ ${items[0].label}`,
-                                label: (item) => `รายได้: ${formatCurrency(item.raw)}`
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#a0a0c0',
-                                font: {
-                                    family: 'Prompt',
-                                    size: 11
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: 'วันที่',
-                                color: '#a0a0c0',
-                                font: {
-                                    family: 'Prompt',
-                                    size: 12
-                                }
-                            }
-                        },
-                        y: {
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.05)'
-                            },
-                            ticks: {
-                                color: '#a0a0c0',
-                                font: {
-                                    family: 'Prompt',
-                                    size: 11
-                                },
-                                callback: (value) => formatCurrency(value)
-                            }
-                        }
-                    },
-                    animation: {
-                        duration: 800,
-                        easing: 'easeOutQuart'
-                    }
-                }
-            });
+            tbody.innerHTML = html;
         }
 
-        // ==================== DRILL-DOWN ====================
-        function openDrilldown(monthData) {
-            const modal = document.getElementById('drilldownModal');
-
+        function openMonthDetailModal(monthData) {
             // Set title
-            document.getElementById('modalTitle').textContent = `📅 ${monthData.monthName} ${monthData.year}`;
+            document.getElementById('monthDetailTitle').innerText = `${monthData.monthName} ${monthData.year}`;
 
             // Calculate stats
             const total = monthData.total;
-            const days = monthData.count;
-            const avg = days > 0 ? total / days : 0;
-            const max = Math.max(...monthData.days.map(d => d.amount));
+            const workDays = monthData.days.length;
+            const avgPerDay = workDays > 0 ? total / workDays : 0;
+            const maxDay = monthData.days.reduce((max, d) => Math.max(max, d.amount), 0);
 
-            // Update modal stats
-            document.getElementById('modalTotal').textContent = formatCurrency(total);
-            document.getElementById('modalDays').textContent = days;
-            document.getElementById('modalAvg').textContent = formatCurrency(avg);
-            document.getElementById('modalMax').textContent = formatCurrency(max);
+            // Update stats cards
+            document.getElementById('monthTotalIncome').innerText = formatMoney(total);
+            document.getElementById('monthWorkDays').innerText = workDays;
+            document.getElementById('monthAvgPerDay').innerText = formatMoney(avgPerDay);
+            document.getElementById('monthMaxDay').innerText = formatMoney(maxDay);
 
-            // Render daily chart
-            renderDailyChart(monthData.days);
+            // Render daily table
+            const dailyTableBody = document.getElementById('dailyTableBody');
+            let html = '';
 
-            // Render table
-            const tbody = document.getElementById('dailyTableBody');
-            tbody.innerHTML = monthData.days.map(d => `
-        <tr>
-          <td>${d.date}</td>
-          <td class="amount-cell">${formatCurrency(d.amount)}</td>
-        </tr>
-      `).join('');
+            const sortedDays = [...monthData.days].sort((a, b) => a.day - b.day);
+
+            sortedDays.forEach(dayData => {
+                html += `
+                    <tr>
+                        <td>${dayData.day}/${monthData.month}/${monthData.year}</td>
+                        <td class="amount-cell">${formatMoney(dayData.amount)}</td>
+                    </tr>
+                `;
+            });
+
+            dailyTableBody.innerHTML = html;
 
             // Show modal
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            document.getElementById('monthDetailModal').classList.add('active');
         }
 
-        function closeModal() {
-            const modal = document.getElementById('drilldownModal');
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
+        function closeMonthDetailModal() {
+            document.getElementById('monthDetailModal').classList.remove('active');
         }
 
-        // Close modal on overlay click
-        document.getElementById('drilldownModal').addEventListener('click', (e) => {
-            if (e.target.id === 'drilldownModal') {
-                closeModal();
-            }
-        });
+        async function setGoal() {
+            const val = document.getElementById('goalInput').value;
+            const goalValue = parseFloat(val);
 
-        // Close modal on Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-        // ==================== UTILITIES ====================
-        function formatCurrency(value) {
-            return '฿' + value.toLocaleString('th-TH', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
-        }
-
-        // ==================== GOAL FUNCTIONS ====================
-        let currentGoal = null;
-        let currentTotalIncome = 0;
-
-        async function initGoal() {
-            try {
-                // Load saved goal from webhook
-                const result = await callWebhook(WEBHOOK_CONFIG.ACTIONS.GET_GOAL);
-
-                if (result.success && result.goal) {
-                    currentGoal = result.goal;
-                    document.getElementById('goalInput').value = currentGoal;
-                    updateGoalProgress();
-                }
-            } catch (error) {
-                console.error('Error loading goal:', error);
-            }
-        }
-
-        async function saveGoal() {
-            const input = document.getElementById('goalInput');
-            const goalValue = parseFloat(input.value);
-            const btn = document.querySelector('.goal-btn');
-
-            if (!goalValue || goalValue <= 0) {
-                input.style.borderColor = '#ef4444';
-                setTimeout(() => {
-                    input.style.borderColor = '';
-                }, 2000);
+            if (isNaN(goalValue) || goalValue <= 0) {
+                showToast('Please enter a valid goal amount', 'error');
                 return;
             }
 
-            // Show loading
-            btn.textContent = '⏳ กำลังบันทึก...';
-            btn.disabled = true;
+            try {
+                await callWebhook(WEBHOOK_CONFIG.ACTIONS.SET_GOAL, { goal: goalValue });
+                currentGoal = goalValue;
+                showToast('Goal updated!', 'success');
+                updateGoalProgress();
+            } catch (error) {
+                console.error('Error setting goal:', error);
+                showToast('Error setting goal: ' + error.message, 'error');
+            }
+        }
+
+        function updateGoalProgress(currentAmount) {
+            if (!currentGoal || currentGoal <= 0) return;
+
+            // If currentAmount not provided, get from UI
+            if (currentAmount === undefined) {
+                const totalEl = document.getElementById('totalIncome').innerText;
+                currentAmount = parseFloat(totalEl.replace(/,/g, '').replace('฿', '')) || 0;
+            }
+
+            const percent = Math.min(100, (currentAmount / currentGoal) * 100).toFixed(1);
+            const remaining = Math.max(0, currentGoal - currentAmount);
+
+            const gaugeProgress = document.getElementById('gaugeProgress');
+            if (gaugeProgress) {
+                const circumference = 251.2;
+                const offset = circumference - (circumference * percent / 100);
+                gaugeProgress.style.strokeDashoffset = offset;
+            }
+
+            document.getElementById('gaugePercent').innerText = `${percent}%`;
+            document.getElementById('heroGoal').innerText = `${percent}%`;
+            document.getElementById('goalTargetDisplay').innerText = formatMoney(currentGoal);
+
+            if (remaining > 0) {
+                document.getElementById('goalRemainingDisplay').innerText = formatMoney(remaining);
+            } else {
+                document.getElementById('goalRemainingDisplay').innerText = 'Reached! 🎉';
+            }
+        }
+
+        function openAddIncomeModal() {
+            document.getElementById('addIncomeModal').classList.add('active');
+        }
+
+        async function submitIncome() {
+            const dateVal = document.getElementById('incomeDate').value;
+            const amountVal = document.getElementById('incomeAmount').value;
+
+            if (!dateVal || !amountVal) {
+                showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+
+            // Validate date format (d/M/yyyy)
+            const datePattern = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+            if (!datePattern.test(dateVal)) {
+                showToast('รูปแบบวันที่ไม่ถูกต้อง (ตัวอย่าง: 8/1/2569)', 'error');
+                return;
+            }
 
             try {
-                const result = await callWebhook(WEBHOOK_CONFIG.ACTIONS.SET_GOAL, {
-                    goal: goalValue
+                await callWebhook(WEBHOOK_CONFIG.ACTIONS.ADD_INCOME, {
+                    date: dateVal,  // Send as-is in d/M/yyyy format
+                    amount: amountVal
                 });
 
-                if (result.success) {
-                    currentGoal = result.goal || goalValue;
+                showToast('เพิ่มรายได้สำเร็จ!', 'success');
+                document.getElementById('incomeAmount').value = '';
 
-                    // Animate button success
-                    btn.textContent = '✓ บันทึกแล้ว';
-                    btn.style.background = 'linear-gradient(135deg, #22c55e 0%, #06b6d4 100%)';
+                // Reset to today's date
+                const today = new Date();
+                const thaiYear = today.getFullYear() + 543;
+                document.getElementById('incomeDate').value = `${today.getDate()}/${today.getMonth() + 1}/${thaiYear}`;
 
-                    updateGoalProgress();
-                } else {
-                    throw new Error(result.message);
-                }
+                closeAddIncomeModal();
+                loadData(); // Reload data
+
             } catch (error) {
-                console.error('Error saving goal:', error);
-                btn.textContent = '❌ Error';
-                btn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-            } finally {
-                setTimeout(() => {
-                    btn.textContent = 'ตั้งเป้า';
-                    btn.style.background = '';
-                    btn.disabled = false;
-                }, 2000);
+                console.error('Error adding income:', error);
+                showToast('Error: ' + error.message, 'error');
             }
         }
 
-        function updateGoalProgress() {
-            if (!currentGoal) return;
-
-            const container = document.getElementById('goalContainer');
-            container.style.display = 'block';
-
-            // Calculate current income based on filter
-            const filteredMonthly = selectedYear
-                ? allData.monthly.filter(m => m.year === selectedYear)
-                : allData.monthly;
-            currentTotalIncome = filteredMonthly.reduce((sum, m) => sum + m.total, 0);
-
-            // Update goal info
-            document.getElementById('goalCurrent').textContent = formatCurrency(currentTotalIncome);
-            document.getElementById('goalTarget').textContent = formatCurrency(currentGoal);
-
-            const remaining = Math.max(0, currentGoal - currentTotalIncome);
-            document.getElementById('goalRemaining').textContent = formatCurrency(remaining);
-
-            // Calculate percentage
-            const percentage = Math.min(100, (currentTotalIncome / currentGoal) * 100);
-
-            // Animate progress bar with smooth transition
-            setTimeout(() => {
-                const fillElement = document.getElementById('progressFill');
-                fillElement.style.width = `calc(${percentage}% - 8px)`;
-            }, 100);
-
-            // Animate percentage counter
-            animateValue('progressPercent', 0, percentage, 1500);
-
-            // Update status
-            const statusElement = document.getElementById('goalStatus');
-            if (currentTotalIncome >= currentGoal) {
-                statusElement.className = 'goal-status success';
-                statusElement.innerHTML = `🎉 ยินดีด้วย! คุณบรรลุเป้าหมายแล้ว! เกินมา ${formatCurrency(currentTotalIncome - currentGoal)}`;
-            } else {
-                const percentNeeded = ((currentGoal - currentTotalIncome) / currentGoal * 100).toFixed(1);
-                statusElement.className = 'goal-status in-progress';
-                statusElement.innerHTML = `💪 ต้องหาเพิ่มอีก ${formatCurrency(remaining)} (${percentNeeded}% ของเป้าหมาย)`;
-            }
+        function closeAddIncomeModal() {
+            document.getElementById('addIncomeModal').classList.remove('active');
         }
 
-        function animateValue(elementId, start, end, duration) {
-            const element = document.getElementById(elementId);
-            const range = end - start;
-            const startTime = performance.now();
-
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-
-                // Easing function (easeOutCubic)
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
-                const current = start + (range * easeProgress);
-
-                element.textContent = current.toFixed(1) + '%';
-
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-
-            requestAnimationFrame(update);
+        function formatMoney(num) {
+            return '฿' + (num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
-        // Update goal when year filter changes
-        const originalFilterByYear = filterByYear;
-        filterByYear = function (year) {
-            originalFilterByYear(year);
-            if (currentGoal) {
-                updateGoalProgress();
-            }
-        };
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.className = `toast show ${type}`;
+            document.getElementById('toastMessage').innerText = msg;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function showLoading(show) {
+            const el = document.getElementById('loading');
+            if (show) el.classList.remove('hidden');
+            else el.classList.add('hidden');
+        }
+
+        function showError(err) {
+            // This function is no longer directly called by google.script.run,
+            // but can be kept for general error display if needed.
+            showLoading(false);
+            showToast(err.message, 'error');
+        }
     </script>
 </body>
 
