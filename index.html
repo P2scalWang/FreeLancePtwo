@@ -717,6 +717,14 @@
             border-color: var(--primary);
         }
 
+        .modal-actions {
+            padding: 0 2.5rem 2.5rem;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
         /* Loading */
         .loading-overlay {
             position: fixed;
@@ -1139,8 +1147,8 @@
                 font-size: 0.9rem;
             }
 
-            .modal .btn-primary {
-                margin: 0 1rem 1.25rem;
+            .modal-actions {
+                padding: 0 1rem 1.25rem;
             }
 
             .modal-wide {
@@ -1414,7 +1422,9 @@
                 <input type="number" id="incomeAmount" class="form-input" placeholder="0.00">
             </div>
 
-            <button onclick="submitIncome()" class="btn-primary" style="width:100%;">Add Income</button>
+            <div class="modal-actions">
+                <button onclick="submitIncome()" class="btn-primary btn-block">Add Income</button>
+            </div>
         </div>
     </div>
 
