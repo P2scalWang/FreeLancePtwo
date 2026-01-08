@@ -1594,7 +1594,8 @@
                 monthlyMap[monthKey].count++;
                 monthlyMap[monthKey].days.push({
                     day: day,
-                    amount: amount
+                    amount: amount,
+                    createdAt: record.createdAt || null  // เก็บ timestamp จาก database
                 });
             });
 
@@ -1711,6 +1712,7 @@
                             month: monthData.month,
                             year: monthData.year,
                             amount: day.amount,
+                            createdAt: day.createdAt,
                             fullDate: new Date(monthData.year - 543, monthData.month - 1, day.day)
                         });
                     });
@@ -1723,8 +1725,15 @@
                 return;
             }
 
-            // เรียงลำดับตามวันที่ล่าสุดมาก่อน
-            allDays.sort((a, b) => b.fullDate - a.fullDate);
+            // เรียงลำดับตาม timestamp ถ้ามี ไม่งั้นใช้วันที่
+            allDays.sort((a, b) => {
+                // ถ้ามี timestamp ให้เรียงตาม timestamp
+                if (a.createdAt && b.createdAt) {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                }
+                // ถ้าไม่มี timestamp ให้เรียงตามวันที่
+                return b.fullDate - a.fullDate;
+            });
 
             // ดึงรายการล่าสุด
             const latest = allDays[0];
