@@ -725,6 +725,10 @@
             width: 100%;
         }
 
+        .modal-body {
+            padding: 0 2.5rem 2.5rem;
+        }
+
         /* Loading */
         .loading-overlay {
             position: fixed;
@@ -784,6 +788,43 @@
 
         .toast.error {
             border-left: 4px solid var(--accent);
+        }
+
+        /* Monthly Detail Modal Styles */
+        .month-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .month-stat-card {
+            background: var(--bg-main);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .month-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .month-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .daily-table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .daily-table-container table {
+            margin: 0;
         }
 
         /* Responsive - Tablet */
@@ -1151,6 +1192,10 @@
                 padding: 0 1rem 1.25rem;
             }
 
+            .modal-body {
+                padding: 0 1rem 1.25rem;
+            }
+
             .modal-wide {
                 width: 100%;
                 max-width: 100%;
@@ -1168,43 +1213,6 @@
                 padding: 1rem;
                 font-size: 0.875rem;
             }
-        }
-
-        /* Monthly Detail Modal Styles */
-        .month-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .month-stat-card {
-            background: var(--bg-main);
-            padding: 1rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .month-stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .month-stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--secondary);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .daily-table-container {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .daily-table-container table {
-            margin: 0;
         }
     </style>
 </head>
@@ -1441,39 +1449,41 @@
                 <button class="close-btn" onclick="closeMonthDetailModal()">×</button>
             </div>
 
-            <!-- Monthly Stats -->
-            <div class="month-stats-grid">
-                <div class="month-stat-card">
-                    <div class="month-stat-label">รายได้รวม</div>
-                    <div class="month-stat-value" id="monthTotalIncome">฿0</div>
+            <div class="modal-body">
+                <!-- Monthly Stats -->
+                <div class="month-stats-grid">
+                    <div class="month-stat-card">
+                        <div class="month-stat-label">รายได้รวม</div>
+                        <div class="month-stat-value" id="monthTotalIncome">฿0</div>
+                    </div>
+                    <div class="month-stat-card">
+                        <div class="month-stat-label">จำนวนวันทำงาน</div>
+                        <div class="month-stat-value" id="monthWorkDays">0</div>
+                    </div>
+                    <div class="month-stat-card">
+                        <div class="month-stat-label">เฉลี่ยต่อวัน</div>
+                        <div class="month-stat-value" id="monthAvgPerDay">฿0</div>
+                    </div>
+                    <div class="month-stat-card">
+                        <div class="month-stat-label">มากที่สุด</div>
+                        <div class="month-stat-value" id="monthMaxDay">฿0</div>
+                    </div>
                 </div>
-                <div class="month-stat-card">
-                    <div class="month-stat-label">จำนวนวันทำงาน</div>
-                    <div class="month-stat-value" id="monthWorkDays">0</div>
-                </div>
-                <div class="month-stat-card">
-                    <div class="month-stat-label">เฉลี่ยต่อวัน</div>
-                    <div class="month-stat-value" id="monthAvgPerDay">฿0</div>
-                </div>
-                <div class="month-stat-card">
-                    <div class="month-stat-label">มากที่สุด</div>
-                    <div class="month-stat-value" id="monthMaxDay">฿0</div>
-                </div>
-            </div>
 
-            <!-- Daily Breakdown Table -->
-            <div class="daily-table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>วันที่</th>
-                            <th>จำนวนเงิน</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dailyTableBody">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+                <!-- Daily Breakdown Table -->
+                <div class="daily-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
