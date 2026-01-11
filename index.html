@@ -12,7 +12,44 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Prompt:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwdvwKCLISa3xyA5naj2MyP4OC54sh4yc",
+            authDomain: "p2scalfreelance.firebaseapp.com",
+            databaseURL: "https://p2scalfreelance-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "p2scalfreelance",
+            storageBucket: "p2scalfreelance.firebasestorage.app",
+            messagingSenderId: "682097976042",
+            appId: "1:682097976042:web:550a0a2c24d0238b1cad93",
+            measurementId: "G-ZQN5RYKKS8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Create global Firebase API object
+        window.firebase = {
+            db: database,
+            ref: ref,
+            set: set,
+            push: push,
+            onValue: onValue,
+            get: get
+        };
+
+        // Signal that Firebase is ready
+        window.firebaseReady = true;
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
 
     <style>
         :root {
@@ -1489,531 +1526,538 @@
     </div>
 
     <script>
-        // Webhook Configuration
-        const WEBHOOK_CONFIG = {
-            BASE_URL: 'https://n8n.srv1038568.hstgr.cloud/webhook/Freelance',
-            ACTIONS: {
-                GET_DATA: 'getData',
-                ADD_INCOME: 'addIncome',
-                GET_GOAL: 'getGoal',
-                SET_GOAL: 'setGoal'
-            }
-        };
+        // Wait for Firebase to be ready
+        function initDashboard() {
+            // Firebase Database References
+            const firebase = window.firebase;
+            const db = firebase.db;
+            const dbRef = firebase.ref;
+            const dbSet = firebase.set;
+            const dbPush = firebase.push;
+            const dbOnValue = firebase.onValue;
+            const dbGet = firebase.get;
 
-        // State
-        let dashboardData = null;
-        let currentYear = new Date().getFullYear() + 543;
-        let myChart = null;
-        let currentGoal = 0;
+            // State
+            let dashboardData = null;
+            let currentYear = new Date().getFullYear() + 543;
+            let myChart = null;
+            let currentGoal = 0;
 
-        // Helper: Call Webhook
-        async function callWebhook(action, params = {}) {
-            const url = new URL(WEBHOOK_CONFIG.BASE_URL);
-            url.searchParams.append('action', action);
-
-            // Determine if we should use POST or GET
-            const isPostAction = action === WEBHOOK_CONFIG.ACTIONS.ADD_INCOME ||
-                action === WEBHOOK_CONFIG.ACTIONS.SET_GOAL;
-
-            let fetchOptions = {
-                headers: { 'Content-Type': 'application/json' }
-            };
-
-            if (isPostAction) {
-                // Use POST method with body for write operations
-                fetchOptions.method = 'POST';
-                fetchOptions.body = JSON.stringify(params);
-            } else {
-                // Use GET method with query params for read operations
-                fetchOptions.method = 'GET';
-                for (const key in params) {
-                    url.searchParams.append(key, params[key]);
-                }
-            }
-
-            const response = await fetch(url.toString(), fetchOptions);
-
-            if (!response.ok) {
-                throw new Error(`Webhook error: ${response.status}`);
-            }
-
-            return await response.json();
-        }
-
-        // Process Webhook Data (supports merged Goal + Freelance format)
-        function processWebhookData(rawData) {
-            if (!Array.isArray(rawData) || rawData.length === 0) {
-                return { years: [], monthly: [], goal: null };
-            }
-
-            let goal = null;
-            const freelanceRecords = [];
-
-            // แยก Goal record จาก Freelance records
-            rawData.forEach(item => {
-                if (item.Goal !== undefined && item.Goal !== null) {
-                    const goalStr = String(item.Goal).replace(/,/g, '');
-                    goal = parseFloat(goalStr) || 0;
-                } else if (item.Date && item.Money) {
-                    freelanceRecords.push(item);
-                }
-            });
-
-            // แปลง Freelance records
-            const yearSet = new Set();
-            const monthlyMap = {};
-
-            freelanceRecords.forEach(record => {
-                const moneyStr = String(record.Money).replace(/,/g, '');
-                const amount = parseFloat(moneyStr) || 0;
-
-                const dateParts = record.Date.split('/');
-                if (dateParts.length !== 3) return;
-
-                const day = parseInt(dateParts[0]);
-                let month = parseInt(dateParts[1]);
-                let year = parseInt(dateParts[2]);
-
-                if (year < 2400) year += 543;
-
-                yearSet.add(year);
-
-                const monthKey = `${year}-${month}`;
-                if (!monthlyMap[monthKey]) {
-                    monthlyMap[monthKey] = {
-                        year: year,
-                        month: month,
-                        monthName: getThaiMonthName(month),
-                        total: 0,
-                        count: 0,
-                        days: []
-                    };
+            // Process Firebase Data
+            function processFirebaseData(snapshot) {
+                if (!snapshot.exists()) {
+                    return { years: [], monthly: [], goal: null };
                 }
 
-                monthlyMap[monthKey].total += amount;
-                monthlyMap[monthKey].count++;
-                monthlyMap[monthKey].days.push({
-                    day: day,
-                    amount: amount,
-                    createdAt: record.createdAt || null  // เก็บ timestamp จาก database
-                });
-            });
+                const data = snapshot.val();
+                let goal = null;
+                const freelanceRecords = [];
 
-            const years = Array.from(yearSet).sort((a, b) => a - b);
-            const monthly = Object.values(monthlyMap);
-
-            return { years, monthly, goal };
-        }
-
-        function getThaiMonthName(month) {
-            const names = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
-                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-            return names[month - 1] || '';
-        }
-
-        // Init
-        window.addEventListener('load', () => {
-            // Set today's date in Thai format (d/M/yyyy)
-            const today = new Date();
-            const thaiYear = today.getFullYear() + 543;
-            const dateStr = `${today.getDate()}/${today.getMonth() + 1}/${thaiYear}`;
-            document.getElementById('incomeDate').value = dateStr;
-
-            loadData();
-        });
-
-        async function loadData() {
-            showLoading(true);
-
-            try {
-                const rawData = await callWebhook(WEBHOOK_CONFIG.ACTIONS.GET_DATA);
-                const result = processWebhookData(rawData);
-
-                dashboardData = { years: result.years, monthly: result.monthly };
-
-                // ตั้งค่า Goal ถ้ามี
-                if (result.goal) {
-                    currentGoal = result.goal;
-                    document.getElementById('goalInput').value = currentGoal;
+                // Extract goal
+                if (data.goal && data.goal.value !== undefined) {
+                    goal = parseFloat(data.goal.value) || 0;
                 }
 
-                setupYearTabs(result.years);
-
-                if (result.years && result.years.length > 0) {
-                    if (!result.years.includes(currentYear)) {
-                        currentYear = result.years[result.years.length - 1];
-                    }
-                }
-
-                renderDashboard(currentYear);
-                showLoading(false);
-
-            } catch (error) {
-                console.error('Error loading data:', error);
-                showToast('Error loading data: ' + error.message, 'error');
-                showLoading(false);
-            }
-        }
-
-        function setupYearTabs(years) {
-            const container = document.getElementById('yearFilter');
-            let html = '';
-            years.forEach(y => {
-                html += `<button class="year-pill ${y === currentYear ? 'active' : ''}" onclick="switchYear(${y})">${y}</button>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function switchYear(year) {
-            currentYear = year;
-            document.querySelectorAll('.year-pill').forEach(el => {
-                el.classList.toggle('active', parseInt(el.innerText) === year);
-            });
-            renderDashboard(year);
-        }
-
-        function renderDashboard(year) {
-            if (!dashboardData) return;
-
-            const yearData = dashboardData.monthly.filter(m => m.year === year);
-            const total = yearData.reduce((sum, m) => sum + m.total, 0);
-            const count = yearData.length || 1;
-            const avg = total / count;
-            const best = yearData.reduce((max, m) => m.total > max.total ? m : max, { total: 0, monthName: '-' });
-
-            // Update all UIs
-            document.getElementById('heroTotal').innerText = formatMoney(total);
-            document.getElementById('heroYear').innerText = year;
-            document.getElementById('totalIncome').innerText = formatMoney(total);
-            document.getElementById('avgIncome').innerText = formatMoney(avg);
-            document.getElementById('bestMonth').innerText = formatMoney(best.total);
-            document.getElementById('bestMonthName').innerText = best.monthName;
-
-            renderChart(yearData, avg);
-            renderTable(yearData, avg);
-            updateGoalProgress(total);
-            updateLatestIncome();
-        }
-
-        function updateLatestIncome() {
-            if (!dashboardData || !dashboardData.monthly || dashboardData.monthly.length === 0) {
-                document.getElementById('latestIncomeAmount').innerText = '฿0';
-                document.getElementById('latestIncomeDate').innerText = '-';
-                return;
-            }
-
-            // รวมรายการวันทั้งหมดจากทุกเดือน
-            let allDays = [];
-            dashboardData.monthly.forEach(monthData => {
-                if (monthData.days && monthData.days.length > 0) {
-                    monthData.days.forEach(day => {
-                        allDays.push({
-                            day: day.day,
-                            month: monthData.month,
-                            year: monthData.year,
-                            amount: day.amount,
-                            createdAt: day.createdAt,
-                            fullDate: new Date(monthData.year - 543, monthData.month - 1, day.day)
-                        });
+                // Extract income records
+                if (data.income) {
+                    Object.keys(data.income).forEach(key => {
+                        const record = data.income[key];
+                        if (record.date && record.money) {
+                            freelanceRecords.push({
+                                Date: record.date,
+                                Money: record.money,
+                                createdAt: record.timestamp || key
+                            });
+                        }
                     });
                 }
-            });
 
-            if (allDays.length === 0) {
-                document.getElementById('latestIncomeAmount').innerText = '฿0';
-                document.getElementById('latestIncomeDate').innerText = '-';
-                return;
+                // Process income records into monthly data
+                const yearSet = new Set();
+                const monthlyMap = {};
+
+                freelanceRecords.forEach(record => {
+                    const moneyStr = String(record.Money).replace(/,/g, '');
+                    const amount = parseFloat(moneyStr) || 0;
+
+                    const dateParts = record.Date.split('/');
+                    if (dateParts.length !== 3) return;
+
+                    const day = parseInt(dateParts[0]);
+                    let month = parseInt(dateParts[1]);
+                    let year = parseInt(dateParts[2]);
+
+                    if (year < 2400) year += 543;
+
+                    yearSet.add(year);
+
+                    const monthKey = `${year}-${month}`;
+                    if (!monthlyMap[monthKey]) {
+                        monthlyMap[monthKey] = {
+                            year: year,
+                            month: month,
+                            monthName: getThaiMonthName(month),
+                            total: 0,
+                            count: 0,
+                            days: []
+                        };
+                    }
+
+                    monthlyMap[monthKey].total += amount;
+                    monthlyMap[monthKey].count++;
+                    monthlyMap[monthKey].days.push({
+                        day: day,
+                        amount: amount,
+                        createdAt: record.createdAt
+                    });
+                });
+
+                const years = Array.from(yearSet).sort((a, b) => b - a);
+                const monthly = Object.values(monthlyMap).sort((a, b) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return b.month - a.month;
+                });
+
+                return { years, monthly, goal };
             }
 
-            // เรียงลำดับตาม timestamp ถ้ามี ไม่งั้นใช้วันที่
-            allDays.sort((a, b) => {
-                // ถ้ามี timestamp ให้เรียงตาม timestamp
-                if (a.createdAt && b.createdAt) {
-                    return new Date(b.createdAt) - new Date(a.createdAt);
-                }
-                // ถ้าไม่มี timestamp ให้เรียงตามวันที่
-                return b.fullDate - a.fullDate;
-            });
-
-            // ดึงรายการล่าสุด
-            const latest = allDays[0];
-
-            // แสดงผล
-            document.getElementById('latestIncomeAmount').innerText = formatMoney(latest.amount);
-            document.getElementById('latestIncomeDate').innerText = `${latest.day}/${latest.month}/${latest.year}`;
-        }
-
-        function renderChart(monthlyData, averageValue) {
-            const ctx = document.getElementById('incomeChart').getContext('2d');
-            const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            const incomeValues = new Array(12).fill(0);
-            monthlyData.forEach(m => {
-                if (m.month >= 1 && m.month <= 12) {
-                    incomeValues[m.month - 1] = m.total;
-                }
-            });
-
-            const avgValues = new Array(12).fill(averageValue);
-            const currentMonthIndex = new Date().getMonth();
-
-            const bgColors = [];
-            for (let i = 0; i < 12; i++) {
-                if (i === currentMonthIndex && currentYear === (new Date().getFullYear() + 543)) {
-                    bgColors.push('#6366f1');
-                } else if (incomeValues[i] > 0) {
-                    bgColors.push('#334155');
-                } else {
-                    bgColors.push('rgba(255,255,255,0.02)');
-                }
+            function getThaiMonthName(month) {
+                const names = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+                return names[month - 1] || '';
             }
 
-            if (myChart) myChart.destroy();
+            // Init
+            window.addEventListener('load', () => {
+                // Set today's date in Thai format (d/M/yyyy)
+                const today = new Date();
+                const thaiYear = today.getFullYear() + 543;
+                const dateStr = `${today.getDate()}/${today.getMonth() + 1}/${thaiYear}`;
+                document.getElementById('incomeDate').value = dateStr;
 
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: allMonths,
-                    datasets: [
-                        {
-                            type: 'line',
-                            label: 'Average',
-                            data: avgValues,
-                            borderColor: '#14b8a6',
-                            borderWidth: 2,
-                            borderDash: [6, 6],
-                            pointRadius: 0,
-                            tension: 0,
-                            order: 1
-                        },
-                        {
-                            type: 'bar',
-                            label: 'Income',
-                            data: incomeValues,
-                            backgroundColor: bgColors,
-                            borderRadius: 6,
-                            barPercentage: 0.7,
-                            order: 2
+                loadData();
+            });
+
+            function loadData() {
+                showLoading(true);
+
+                try {
+                    // Listen to Firebase data in real-time
+                    const dataRef = dbRef(db, 'freelance-income');
+                    dbOnValue(dataRef, (snapshot) => {
+                        const result = processFirebaseData(snapshot);
+
+                        dashboardData = { years: result.years, monthly: result.monthly };
+
+                        // ตั้งค่า Goal ถ้ามี
+                        if (result.goal) {
+                            currentGoal = result.goal;
+                            document.getElementById('goalInput').value = currentGoal;
                         }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#1e293b',
-                            titleColor: '#fff',
-                            callbacks: {
-                                label: (context) => ' ' + context.dataset.label + ': ' + formatMoney(context.raw)
+
+                        setupYearTabs(result.years);
+
+                        if (result.years && result.years.length > 0) {
+                            if (!result.years.includes(currentYear)) {
+                                currentYear = result.years[result.years.length - 1];
                             }
+                            renderDashboard(currentYear);
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#64748b' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#64748b' }
-                        }
+
+                        showLoading(false);
+                    }, (error) => {
+                        console.error('Error loading data:', error);
+                        showToast('Error loading data: ' + error.message, 'error');
+                        showLoading(false);
+                    });
+                } catch (error) {
+                    console.error('Error initializing Firebase listener:', error);
+                    showToast('Error initializing Firebase: ' + error.message, 'error');
+                    showLoading(false);
+                }
+            }
+
+            function setupYearTabs(years) {
+                const container = document.getElementById('yearFilter');
+                let html = '';
+                years.forEach(y => {
+                    html += `<button class="year-pill ${y === currentYear ? 'active' : ''}" onclick="switchYear(${y})">${y}</button>`;
+                });
+                container.innerHTML = html;
+            }
+
+            function switchYear(year) {
+                currentYear = year;
+                document.querySelectorAll('.year-pill').forEach(el => {
+                    el.classList.toggle('active', parseInt(el.innerText) === year);
+                });
+                renderDashboard(year);
+            }
+
+            function renderDashboard(year) {
+                if (!dashboardData) return;
+
+                const yearData = dashboardData.monthly.filter(m => m.year === year);
+                const total = yearData.reduce((sum, m) => sum + m.total, 0);
+                const count = yearData.length || 1;
+                const avg = total / count;
+                const best = yearData.reduce((max, m) => m.total > max.total ? m : max, { total: 0, monthName: '-' });
+
+                // Update all UIs
+                document.getElementById('heroTotal').innerText = formatMoney(total);
+                document.getElementById('heroYear').innerText = year;
+                document.getElementById('totalIncome').innerText = formatMoney(total);
+                document.getElementById('avgIncome').innerText = formatMoney(avg);
+                document.getElementById('bestMonth').innerText = formatMoney(best.total);
+                document.getElementById('bestMonthName').innerText = best.monthName;
+
+                renderChart(yearData, avg);
+                renderTable(yearData, avg);
+                updateGoalProgress(total);
+                updateLatestIncome();
+            }
+
+            function updateLatestIncome() {
+                if (!dashboardData || !dashboardData.monthly || dashboardData.monthly.length === 0) {
+                    document.getElementById('latestIncomeAmount').innerText = '฿0';
+                    document.getElementById('latestIncomeDate').innerText = '-';
+                    return;
+                }
+
+                // รวมรายการวันทั้งหมดจากทุกเดือน
+                let allDays = [];
+                dashboardData.monthly.forEach(monthData => {
+                    if (monthData.days && monthData.days.length > 0) {
+                        monthData.days.forEach(day => {
+                            allDays.push({
+                                day: day.day,
+                                month: monthData.month,
+                                year: monthData.year,
+                                amount: day.amount,
+                                createdAt: day.createdAt,
+                                fullDate: new Date(monthData.year - 543, monthData.month - 1, day.day)
+                            });
+                        });
+                    }
+                });
+
+                if (allDays.length === 0) {
+                    document.getElementById('latestIncomeAmount').innerText = '฿0';
+                    document.getElementById('latestIncomeDate').innerText = '-';
+                    return;
+                }
+
+                // เรียงลำดับตาม timestamp ถ้ามี ไม่งั้นใช้วันที่
+                allDays.sort((a, b) => {
+                    // ถ้ามี timestamp ให้เรียงตาม timestamp
+                    if (a.createdAt && b.createdAt) {
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    }
+                    // ถ้าไม่มี timestamp ให้เรียงตามวันที่
+                    return b.fullDate - a.fullDate;
+                });
+
+                // ดึงรายการล่าสุด
+                const latest = allDays[0];
+
+                // แสดงผล
+                document.getElementById('latestIncomeAmount').innerText = formatMoney(latest.amount);
+                document.getElementById('latestIncomeDate').innerText = `${latest.day}/${latest.month}/${latest.year}`;
+            }
+
+            function renderChart(monthlyData, averageValue) {
+                const ctx = document.getElementById('incomeChart').getContext('2d');
+                const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+                const incomeValues = new Array(12).fill(0);
+                monthlyData.forEach(m => {
+                    if (m.month >= 1 && m.month <= 12) {
+                        incomeValues[m.month - 1] = m.total;
+                    }
+                });
+
+                const avgValues = new Array(12).fill(averageValue);
+                const currentMonthIndex = new Date().getMonth();
+
+                const bgColors = [];
+                for (let i = 0; i < 12; i++) {
+                    if (i === currentMonthIndex && currentYear === (new Date().getFullYear() + 543)) {
+                        bgColors.push('#6366f1');
+                    } else if (incomeValues[i] > 0) {
+                        bgColors.push('#334155');
+                    } else {
+                        bgColors.push('rgba(255,255,255,0.02)');
                     }
                 }
-            });
-        }
 
-        function renderTable(data, avg) {
-            const tbody = document.getElementById('monthlyTable');
-            let html = '';
+                if (myChart) myChart.destroy();
 
-            const sorted = [...data].sort((a, b) => b.month - a.month);
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: allMonths,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Average',
+                                data: avgValues,
+                                borderColor: '#14b8a6',
+                                borderWidth: 2,
+                                borderDash: [6, 6],
+                                pointRadius: 0,
+                                tension: 0,
+                                order: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Income',
+                                data: incomeValues,
+                                backgroundColor: bgColors,
+                                borderRadius: 6,
+                                barPercentage: 0.7,
+                                order: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                titleColor: '#fff',
+                                callbacks: {
+                                    label: (context) => ' ' + context.dataset.label + ': ' + formatMoney(context.raw)
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255,255,255,0.05)' },
+                                ticks: { color: '#64748b' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#64748b' }
+                            }
+                        }
+                    }
+                });
+            }
 
-            sorted.forEach(m => {
-                const diff = m.total - avg;
-                const percent = avg > 0 ? ((diff / avg) * 100).toFixed(1) : 0;
-                const trend = diff >= 0
-                    ? `<span class="trend-positive">+${percent}% ↑</span>`
-                    : `<span class="trend-negative">${percent}% ↓</span>`;
+            function renderTable(data, avg) {
+                const tbody = document.getElementById('monthlyTable');
+                let html = '';
 
-                html += `
+                const sorted = [...data].sort((a, b) => b.month - a.month);
+
+                sorted.forEach(m => {
+                    const diff = m.total - avg;
+                    const percent = avg > 0 ? ((diff / avg) * 100).toFixed(1) : 0;
+                    const trend = diff >= 0
+                        ? `<span class="trend-positive">+${percent}% ↑</span>`
+                        : `<span class="trend-negative">${percent}% ↓</span>`;
+
+                    html += `
                     <tr onclick='openMonthDetailModal(${JSON.stringify(m)})' style="cursor:pointer;">
                         <td>${m.monthName}</td>
                         <td class="amount-cell">${formatMoney(m.total)}</td>
                         <td>${trend}</td>
                     </tr>
                 `;
-            });
+                });
 
-            if (sorted.length === 0) {
-                html = '<tr><td colspan="3" style="text-align:center; padding:2rem; color:var(--text-muted);">No data</td></tr>';
+                if (sorted.length === 0) {
+                    html = '<tr><td colspan="3" style="text-align:center; padding:2rem; color:var(--text-muted);">No data</td></tr>';
+                }
+
+                tbody.innerHTML = html;
             }
 
-            tbody.innerHTML = html;
-        }
+            function openMonthDetailModal(monthData) {
+                // Set title
+                document.getElementById('monthDetailTitle').innerText = `${monthData.monthName} ${monthData.year}`;
 
-        function openMonthDetailModal(monthData) {
-            // Set title
-            document.getElementById('monthDetailTitle').innerText = `${monthData.monthName} ${monthData.year}`;
+                // Calculate stats
+                const total = monthData.total;
+                const workDays = monthData.days.length;
+                const avgPerDay = workDays > 0 ? total / workDays : 0;
+                const maxDay = monthData.days.reduce((max, d) => Math.max(max, d.amount), 0);
 
-            // Calculate stats
-            const total = monthData.total;
-            const workDays = monthData.days.length;
-            const avgPerDay = workDays > 0 ? total / workDays : 0;
-            const maxDay = monthData.days.reduce((max, d) => Math.max(max, d.amount), 0);
+                // Update stats cards
+                document.getElementById('monthTotalIncome').innerText = formatMoney(total);
+                document.getElementById('monthWorkDays').innerText = workDays;
+                document.getElementById('monthAvgPerDay').innerText = formatMoney(avgPerDay);
+                document.getElementById('monthMaxDay').innerText = formatMoney(maxDay);
 
-            // Update stats cards
-            document.getElementById('monthTotalIncome').innerText = formatMoney(total);
-            document.getElementById('monthWorkDays').innerText = workDays;
-            document.getElementById('monthAvgPerDay').innerText = formatMoney(avgPerDay);
-            document.getElementById('monthMaxDay').innerText = formatMoney(maxDay);
+                // Render daily table
+                const dailyTableBody = document.getElementById('dailyTableBody');
+                let html = '';
 
-            // Render daily table
-            const dailyTableBody = document.getElementById('dailyTableBody');
-            let html = '';
+                const sortedDays = [...monthData.days].sort((a, b) => a.day - b.day);
 
-            const sortedDays = [...monthData.days].sort((a, b) => a.day - b.day);
-
-            sortedDays.forEach(dayData => {
-                html += `
+                sortedDays.forEach(dayData => {
+                    html += `
                     <tr>
                         <td>${dayData.day}/${monthData.month}/${monthData.year}</td>
                         <td class="amount-cell">${formatMoney(dayData.amount)}</td>
                     </tr>
                 `;
-            });
-
-            dailyTableBody.innerHTML = html;
-
-            // Show modal
-            document.getElementById('monthDetailModal').classList.add('active');
-        }
-
-        function closeMonthDetailModal() {
-            document.getElementById('monthDetailModal').classList.remove('active');
-        }
-
-        async function setGoal() {
-            const val = document.getElementById('goalInput').value;
-            const goalValue = parseFloat(val);
-
-            if (isNaN(goalValue) || goalValue <= 0) {
-                showToast('Please enter a valid goal amount', 'error');
-                return;
-            }
-
-            try {
-                await callWebhook(WEBHOOK_CONFIG.ACTIONS.SET_GOAL, { goal: goalValue });
-                currentGoal = goalValue;
-                showToast('Goal updated!', 'success');
-                updateGoalProgress();
-            } catch (error) {
-                console.error('Error setting goal:', error);
-                showToast('Error setting goal: ' + error.message, 'error');
-            }
-        }
-
-        function updateGoalProgress(currentAmount) {
-            if (!currentGoal || currentGoal <= 0) return;
-
-            // If currentAmount not provided, get from UI
-            if (currentAmount === undefined) {
-                const totalEl = document.getElementById('totalIncome').innerText;
-                currentAmount = parseFloat(totalEl.replace(/,/g, '').replace('฿', '')) || 0;
-            }
-
-            const percent = Math.min(100, (currentAmount / currentGoal) * 100).toFixed(1);
-            const remaining = Math.max(0, currentGoal - currentAmount);
-
-            const gaugeProgress = document.getElementById('gaugeProgress');
-            if (gaugeProgress) {
-                const circumference = 251.2;
-                const offset = circumference - (circumference * percent / 100);
-                gaugeProgress.style.strokeDashoffset = offset;
-            }
-
-            document.getElementById('gaugePercent').innerText = `${percent}%`;
-            document.getElementById('heroGoal').innerText = `${percent}%`;
-            document.getElementById('goalTargetDisplay').innerText = formatMoney(currentGoal);
-
-            if (remaining > 0) {
-                document.getElementById('goalRemainingDisplay').innerText = formatMoney(remaining);
-            } else {
-                document.getElementById('goalRemainingDisplay').innerText = 'Reached! 🎉';
-            }
-        }
-
-        function openAddIncomeModal() {
-            document.getElementById('addIncomeModal').classList.add('active');
-        }
-
-        async function submitIncome() {
-            const dateVal = document.getElementById('incomeDate').value;
-            const amountVal = document.getElementById('incomeAmount').value;
-
-            if (!dateVal || !amountVal) {
-                showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
-                return;
-            }
-
-            // Validate date format (d/M/yyyy)
-            const datePattern = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-            if (!datePattern.test(dateVal)) {
-                showToast('รูปแบบวันที่ไม่ถูกต้อง (ตัวอย่าง: 8/1/2569)', 'error');
-                return;
-            }
-
-            try {
-                await callWebhook(WEBHOOK_CONFIG.ACTIONS.ADD_INCOME, {
-                    date: dateVal,  // Send as-is in d/M/yyyy format
-                    amount: amountVal
                 });
 
-                showToast('เพิ่มรายได้สำเร็จ!', 'success');
-                document.getElementById('incomeAmount').value = '';
+                dailyTableBody.innerHTML = html;
 
-                // Reset to today's date
-                const today = new Date();
-                const thaiYear = today.getFullYear() + 543;
-                document.getElementById('incomeDate').value = `${today.getDate()}/${today.getMonth() + 1}/${thaiYear}`;
-
-                closeAddIncomeModal();
-                loadData(); // Reload data
-
-            } catch (error) {
-                console.error('Error adding income:', error);
-                showToast('Error: ' + error.message, 'error');
+                // Show modal
+                document.getElementById('monthDetailModal').classList.add('active');
             }
-        }
 
-        function closeAddIncomeModal() {
-            document.getElementById('addIncomeModal').classList.remove('active');
-        }
+            function closeMonthDetailModal() {
+                document.getElementById('monthDetailModal').classList.remove('active');
+            }
 
-        function formatMoney(num) {
-            return '฿' + (num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
+            async function setGoal() {
+                const val = document.getElementById('goalInput').value;
+                const goalValue = parseFloat(val);
 
-        function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.className = `toast show ${type}`;
-            document.getElementById('toastMessage').innerText = msg;
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
+                if (isNaN(goalValue) || goalValue <= 0) {
+                    showToast('Please enter a valid goal amount', 'error');
+                    return;
+                }
 
-        function showLoading(show) {
-            const el = document.getElementById('loading');
-            if (show) el.classList.remove('hidden');
-            else el.classList.add('hidden');
-        }
+                try {
+                    const goalRef = dbRef(db, 'freelance-income/goal');
+                    await dbSet(goalRef, { value: goalValue });
+                    currentGoal = goalValue;
+                    showToast('Goal updated!', 'success');
+                    updateGoalProgress();
+                } catch (error) {
+                    console.error('Error setting goal:', error);
+                    showToast('Error setting goal: ' + error.message, 'error');
+                }
+            }
 
-        function showError(err) {
-            // This function is no longer directly called by google.script.run,
-            // but can be kept for general error display if needed.
-            showLoading(false);
-            showToast(err.message, 'error');
+            function updateGoalProgress(currentAmount) {
+                if (!currentGoal || currentGoal <= 0) return;
+
+                // If currentAmount not provided, get from UI
+                if (currentAmount === undefined) {
+                    const totalEl = document.getElementById('totalIncome').innerText;
+                    currentAmount = parseFloat(totalEl.replace(/,/g, '').replace('฿', '')) || 0;
+                }
+
+                const percent = Math.min(100, (currentAmount / currentGoal) * 100).toFixed(1);
+                const remaining = Math.max(0, currentGoal - currentAmount);
+
+                const gaugeProgress = document.getElementById('gaugeProgress');
+                if (gaugeProgress) {
+                    const circumference = 251.2;
+                    const offset = circumference - (circumference * percent / 100);
+                    gaugeProgress.style.strokeDashoffset = offset;
+                }
+
+                document.getElementById('gaugePercent').innerText = `${percent}%`;
+                document.getElementById('heroGoal').innerText = `${percent}%`;
+                document.getElementById('goalTargetDisplay').innerText = formatMoney(currentGoal);
+
+                if (remaining > 0) {
+                    document.getElementById('goalRemainingDisplay').innerText = formatMoney(remaining);
+                } else {
+                    document.getElementById('goalRemainingDisplay').innerText = 'Reached! 🎉';
+                }
+            }
+
+            function openAddIncomeModal() {
+                document.getElementById('addIncomeModal').classList.add('active');
+            }
+
+            async function submitIncome() {
+                const dateVal = document.getElementById('incomeDate').value;
+                const amountVal = document.getElementById('incomeAmount').value;
+
+                if (!dateVal || !amountVal) {
+                    showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                    return;
+                }
+
+                // Validate date format (d/M/yyyy)
+                const datePattern = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+                if (!datePattern.test(dateVal)) {
+                    showToast('รูปแบบวันที่ไม่ถูกต้อง (ตัวอย่าง: 8/1/2569)', 'error');
+                    return;
+                }
+
+                try {
+                    const incomeRef = dbRef(db, 'freelance-income/income');
+                    const newIncomeRef = dbPush(incomeRef);
+                    await dbSet(newIncomeRef, {
+                        date: dateVal,
+                        money: parseFloat(amountVal),
+                        timestamp: new Date().toISOString()
+                    });
+
+                    showToast('เพิ่มรายได้สำเร็จ!', 'success');
+                    document.getElementById('incomeAmount').value = '';
+
+                    // Reset to today's date
+                    const today = new Date();
+                    const thaiYear = today.getFullYear() + 543;
+                    document.getElementById('incomeDate').value = `${today.getDate()}/${today.getMonth() + 1}/${thaiYear}`;
+
+                    closeAddIncomeModal();
+                    // No need to call loadData() - Firebase listener will auto-update
+
+                } catch (error) {
+                    console.error('Error adding income:', error);
+                    showToast('Error: ' + error.message, 'error');
+                }
+            }
+
+            function closeAddIncomeModal() {
+                document.getElementById('addIncomeModal').classList.remove('active');
+            }
+
+            function formatMoney(num) {
+                return '฿' + (num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+
+            function showToast(msg, type) {
+                const t = document.getElementById('toast');
+                t.className = `toast show ${type}`;
+                document.getElementById('toastMessage').innerText = msg;
+                setTimeout(() => t.classList.remove('show'), 3000);
+            }
+
+            function showLoading(show) {
+                const el = document.getElementById('loading');
+                if (show) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            }
+
+            function showError(err) {
+                // This function is no longer directly called by google.script.run,
+                // but can be kept for general error display if needed.
+                showLoading(false);
+                showToast(err.message, 'error');
+            }
+
+            // Expose functions to global scope for onclick handlers
+            window.switchYear = switchYear;
+            window.openMonthDetailModal = openMonthDetailModal;
+            window.closeMonthDetailModal = closeMonthDetailModal;
+            window.setGoal = setGoal;
+            window.openAddIncomeModal = openAddIncomeModal;
+            window.submitIncome = submitIncome;
+            window.closeAddIncomeModal = closeAddIncomeModal;
+
+        } // End initDashboard
+
+        // Initialize dashboard when Firebase is ready
+        if (window.firebaseReady) {
+            initDashboard();
+        } else {
+            window.addEventListener('firebase-ready', initDashboard);
         }
     </script>
 </body>
