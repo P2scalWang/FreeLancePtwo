@@ -197,6 +197,37 @@
         .detail-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--c-black); background: #fff; }
         .detail-item:nth-child(odd) { background: #f0f0f0; }
         .detail-list { max-height: 200px; overflow-y: auto; border: var(--border-thin); }
+        .source-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px 0px var(--c-black) !important; }
+
+        .chart-tab {
+            background: #222;
+            color: #aaa;
+            border: 1px solid #444;
+            padding: 3px 10px;
+            font-family: var(--font-head);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .chart-tab:hover { color: #fff; border-color: #888; }
+        .chart-tab.active { background: var(--c-yellow); color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
+
+        .tax-tab {
+            background: #fff;
+            color: #000;
+            border: 2px solid #000;
+            padding: 3px 10px;
+            font-family: var(--font-head);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 #000;
+            transition: all 0.15s;
+        }
+        .tax-tab:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #000; }
+        .tax-tab.active { background: var(--c-black); color: var(--c-white); box-shadow: none; transform: translate(2px, 2px); }
 
         @media (max-width: 768px) {
             .bento-grid { display: flex; flex-direction: column; }
@@ -225,6 +256,7 @@
                 <div class="card-label" style="justify-content: center;">🔥 JUST IN!</div>
                 <div class="card-value" id="latestIncomeAmount">฿0</div>
                 <div style="font-size: 0.9rem; margin-top: 5px;" id="latestIncomeDate">-</div>
+                <div style="margin-top: 6px;"><span id="latestIncomeSource" style="font-size: 0.8rem; font-weight: 700; background: var(--c-black); color: var(--c-white); padding: 2px 8px; border: 1px solid var(--c-black); display: inline-block;">-</span></div>
             </div>
 
             <div class="brutal-card box-stat" style="background: var(--c-green);">
@@ -241,6 +273,11 @@
                 <div class="card-label"><i class='bx bxs-trophy'></i> MVP MONTH</div>
                 <div class="card-value" id="bestMonth">฿0</div>
                 <div style="font-size: 0.8rem;" id="bestMonthName">-</div>
+            </div>
+
+            <div class="brutal-card box-sources" style="grid-column: span 12; background: var(--c-white);">
+                <div class="card-label"><i class='bx bx-pie-chart-alt-2'></i> INCOME SOURCES (ช่องทางรายได้)</div>
+                <div id="sourceBreakdownList" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;"></div>
             </div>
 
             <div class="brutal-card box-goal">
@@ -264,10 +301,16 @@
 
             <!-- Chart Window (Styled like the requested image) -->
             <div class="chart-window">
-                <div class="window-header">
+                <div class="window-header" style="flex-wrap: wrap; gap: 10px;">
                     <span style="display: flex; align-items: center; gap: 8px;">
                         <i class='bx bxs-bar-chart-alt-2' style="color: var(--c-blue)"></i> ANALYTICS
                     </span>
+                    <div class="chart-filter-tabs" id="chartFilterTabs" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="chart-tab active" onclick="switchChartFilter('ALL')">ALL</button>
+                        <button class="chart-tab" onclick="switchChartFilter('Fastwork')">🚀 Fastwork</button>
+                        <button class="chart-tab" onclick="switchChartFilter('Affiliate')">🔗 Affiliate</button>
+                        <button class="chart-tab" onclick="switchChartFilter('อื่นๆ')">💡 อื่นๆ</button>
+                    </div>
                     <div class="window-controls">
                         <div class="win-dot" style="background: var(--c-pink);"></div>
                         <div class="win-dot" style="background: var(--c-yellow);"></div>
@@ -289,6 +332,56 @@
                 </table>
             </div>
 
+            <!-- Thai Personal Income Tax Estimator -->
+            <div class="table-section" style="grid-column: span 12; background: var(--c-white);">
+                <div class="window-header" style="background: var(--c-yellow); color: var(--c-black); border-bottom: var(--border-thick); flex-wrap: wrap; gap: 10px; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i class='bx bx-calculator'></i> THAI TAX ESTIMATOR (คำนวณภาษีเงินได้บุคคลธรรมดาคร่าวๆ)
+                    </span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button class="tax-tab active" onclick="switchTaxCategory('ALL')">ALL</button>
+                        <button class="tax-tab" onclick="switchTaxCategory('Fastwork')">🚀 Fastwork</button>
+                        <button class="tax-tab" onclick="switchTaxCategory('Affiliate')">🔗 Affiliate</button>
+                        <button class="tax-tab" onclick="switchTaxCategory('อื่นๆ')">💡 อื่นๆ</button>
+                    </div>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div style="background: #f8f9fa; border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #666;">รายได้รวมพึงประเมิน</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #000;" id="taxGrossIncome">฿0</div>
+                        </div>
+                        <div style="background: #f8f9fa; border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #666;">หักค่าใช้จ่าย 50% (ไม่เกิน 1 แสน) + ลดหย่อนส่วนตัว 6 หมื่น</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #d97706;" id="taxDeductions">-฿0</div>
+                        </div>
+                        <div style="background: #f8f9fa; border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #666;">เงินได้สุทธินำไปคิดภาษี</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #2563eb;" id="taxNetIncome">฿0</div>
+                        </div>
+                        <div style="background: var(--c-pink); border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000; color: black;">
+                            <div style="font-size: 0.8rem; font-weight: 700;">ภาษีประมาณการที่ต้องจ่าย 💸</div>
+                            <div style="font-size: 1.7rem; font-weight: 700; color: #000;" id="taxPayable">฿0</div>
+                            <div style="font-size: 0.75rem; font-weight: 700; margin-top: 3px;" id="taxEffectiveRate">อัตราภาษีเฉลี่ยสุทธิ: 0%</div>
+                        </div>
+                    </div>
+
+                    <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.9rem;">📊 ตารางคำนวณภาษีแบบก้าวหน้า (Progressive Tax Rates):</div>
+                    <div style="overflow-x: auto;">
+                        <table class="brutal-table" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr style="background: #111; color: white;">
+                                    <th>ขั้นเงินได้สุทธิ (บาท)</th>
+                                    <th>อัตราภาษี</th>
+                                    <th>ภาษีที่ต้องชำระในขั้นนี้</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taxBracketTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -301,7 +394,16 @@
             <div class="modal-content">
                 <div class="modal-title">ADD CASH 💸</div>
                 <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">DATE</label><input type="text" id="incomeDate" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="d/m/yyyy"></div>
-                <div style="margin-bottom: 20px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">AMOUNT</label><input type="number" id="incomeAmount" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="0.00"></div>
+                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">AMOUNT</label><input type="number" id="incomeAmount" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="0.00"></div>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">SOURCE (ที่มาของเงิน)</label>
+                    <select id="incomeSource" class="ugly-input" style="width: 100%; border: 2px solid black; cursor: pointer; background: white; font-weight: 600;" onchange="toggleCustomSourceInput(this.value)">
+                        <option value="Fastwork">🚀 Fastwork</option>
+                        <option value="Affiliate">🔗 Affiliate</option>
+                        <option value="อื่นๆ">💡 อื่นๆ</option>
+                    </select>
+                    <input type="text" id="customSourceInput" class="ugly-input" style="width: 100%; border: 2px solid black; margin-top: 8px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
+                </div>
                 <button onclick="submitIncome()" class="ugly-btn" style="width: 100%; padding: 15px; background: var(--c-green);">SAVE RECORD</button>
             </div>
         </div>
@@ -317,8 +419,49 @@
                     <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>DAYS</small><div style="font-weight: 700;" id="monthWorkDays">0</div></div>
                     <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>AVG</small><div style="font-weight: 700;" id="monthAvgPerDay">฿0</div></div>
                 </div>
-                <div style="font-weight: 700; margin-bottom: 5px;">HISTORY LOG:</div>
+                <div style="font-weight: 700; margin-bottom: 5px;">HISTORY LOG (คลิก ✏️ เพื่อแก้ไข / 🗑️ เพื่อลบ):</div>
                 <ul class="detail-list" id="dailyTableBody"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="editIncomeModal" class="modal-overlay">
+        <div class="modal-window">
+            <div class="window-header" style="background: var(--c-yellow); color: var(--c-black);"><span>EDIT_ENTRY</span><div class="window-controls" onclick="closeEditIncomeModal()" style="cursor: pointer;">✖</div></div>
+            <div class="modal-content">
+                <div class="modal-title">EDIT CASH ✏️</div>
+                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">DATE</label><input type="text" id="incomeDateEdit" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="d/m/yyyy"></div>
+                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">AMOUNT</label><input type="number" id="incomeAmountEdit" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="0.00"></div>
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">SOURCE (ที่มาของเงิน)</label>
+                    <select id="incomeSourceEdit" class="ugly-input" style="width: 100%; border: 2px solid black; cursor: pointer; background: white; font-weight: 600;" onchange="toggleCustomSourceInputEdit(this.value)">
+                        <option value="Fastwork">🚀 Fastwork</option>
+                        <option value="Affiliate">🔗 Affiliate</option>
+                        <option value="อื่นๆ">💡 อื่นๆ</option>
+                    </select>
+                    <input type="text" id="customSourceInputEdit" class="ugly-input" style="width: 100%; border: 2px solid black; margin-top: 8px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="updateIncome()" class="ugly-btn" style="flex: 1; padding: 12px; background: var(--c-green);">SAVE CHANGES</button>
+                    <button onclick="deleteIncomeFromEditModal()" class="ugly-btn" style="padding: 12px; background: var(--c-pink); color: white;">DELETE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sourceDetailModal" class="modal-overlay">
+        <div class="modal-window">
+             <div class="window-header" id="sourceDetailHeader" style="background: var(--c-yellow); color: var(--c-black);">
+                 <span id="sourceDetailTitle">SOURCE DETAILS</span>
+                 <div class="window-controls" onclick="closeSourceDetailModal()" style="cursor: pointer;">✖</div>
+             </div>
+            <div class="modal-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>TOTAL</small><div style="font-weight: 700;" id="sourceTotalIncome">฿0</div></div>
+                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>ENTRIES</small><div style="font-weight: 700;" id="sourceWorkDays">0</div></div>
+                </div>
+                <div style="font-weight: 700; margin-bottom: 5px;">ALL TRANSACTIONS:</div>
+                <ul class="detail-list" id="sourceDailyTableBody"></ul>
             </div>
         </div>
     </div>
@@ -350,7 +493,13 @@
                     Object.keys(data.income).forEach(key => {
                         const record = data.income[key];
                         if (record.date && record.money) {
-                            freelanceRecords.push({ Date: record.date, Money: record.money, createdAt: record.timestamp || key });
+                            freelanceRecords.push({
+                                id: key,
+                                Date: record.date,
+                                Money: record.money,
+                                Source: record.source || 'อื่นๆ',
+                                createdAt: record.timestamp || key
+                            });
                         }
                     });
                 }
@@ -372,7 +521,14 @@
                     }
                     monthlyMap[monthKey].total += amount;
                     monthlyMap[monthKey].count++;
-                    monthlyMap[monthKey].days.push({ day: parseInt(dateParts[0]), amount: amount, createdAt: record.createdAt });
+                    monthlyMap[monthKey].days.push({
+                        id: record.id,
+                        dateStr: record.Date,
+                        day: parseInt(dateParts[0]),
+                        amount: amount,
+                        source: record.Source,
+                        createdAt: record.createdAt
+                    });
                 });
                 const years = Array.from(yearSet).sort((a, b) => b - a);
                 const monthly = Object.values(monthlyMap).sort((a, b) => (b.year - a.year) || (b.month - a.month));
@@ -434,12 +590,65 @@
 
                 renderChart(yearData, avg);
                 renderTable(yearData, avg);
+                renderSourceBreakdown(yearData);
+                renderTaxCalculation(yearData);
                 updateGoalProgress(total);
                 updateLatestIncome();
             }
 
+            function getCategoryKey(src) {
+                if (!src) return 'อื่นๆ';
+                if (src.includes('Fastwork')) return 'Fastwork';
+                if (src.includes('Affiliate')) return 'Affiliate';
+                return 'อื่นๆ';
+            }
+
+            function renderSourceBreakdown(yearData) {
+                const categories = ['Fastwork', 'Affiliate', 'อื่นๆ'];
+                const categoryTotals = { 'Fastwork': 0, 'Affiliate': 0, 'อื่นๆ': 0 };
+                let totalIncomeInYear = 0;
+
+                yearData.forEach(m => {
+                    m.days.forEach(d => {
+                        const cat = getCategoryKey(d.source);
+                        categoryTotals[cat] = (categoryTotals[cat] || 0) + d.amount;
+                        totalIncomeInYear += d.amount;
+                    });
+                });
+
+                const container = document.getElementById('sourceBreakdownList');
+                if (!container) return;
+
+                const html = categories.map(cat => {
+                    const amt = categoryTotals[cat] || 0;
+                    const pct = totalIncomeInYear > 0 ? ((amt / totalIncomeInYear) * 100).toFixed(1) : '0.0';
+                    const color = getSourceColor(cat);
+                    const icon = getSourceIcon(cat);
+                    return `
+                        <div onclick="openSourceDetailModal('${cat}')" class="source-card" style="flex: 1; min-width: 180px; background: ${color}; border: var(--border-thin); padding: 12px; box-shadow: 3px 3px 0 #000; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;">
+                            <div style="font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between;">
+                                <span>${icon} ${cat}</span>
+                                <span style="background: #000; color: #fff; padding: 1px 6px; font-size: 0.75rem;">${pct}%</span>
+                            </div>
+                            <div style="font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; margin-top: 5px;">${formatMoney(amt)}</div>
+                            <div style="width: 100%; background: rgba(0,0,0,0.15); height: 6px; margin-top: 8px; border: 1px solid #000;">
+                                <div style="width: ${pct}%; background: #000; height: 100%;"></div>
+                            </div>
+                            <div style="font-size: 0.75rem; text-align: right; margin-top: 5px; font-weight: 700; text-decoration: underline;">VIEW LOG ➔</div>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = html;
+            }
+
             function updateLatestIncome() {
-                if (!dashboardData?.monthly?.length) { document.getElementById('latestIncomeAmount').innerText = '฿0'; return; }
+                if (!dashboardData?.monthly?.length) {
+                    document.getElementById('latestIncomeAmount').innerText = '฿0';
+                    document.getElementById('latestIncomeDate').innerText = '-';
+                    if (document.getElementById('latestIncomeSource')) document.getElementById('latestIncomeSource').innerText = '-';
+                    return;
+                }
                 let allDays = [];
                 dashboardData.monthly.forEach(m => m.days.forEach(d => allDays.push({ ...d, month: m.month, year: m.year })));
                 if (!allDays.length) return;
@@ -451,39 +660,76 @@
                 const latest = allDays[0];
                 document.getElementById('latestIncomeAmount').innerText = formatMoney(latest.amount);
                 document.getElementById('latestIncomeDate').innerText = `${latest.day}/${latest.month}/${latest.year}`;
+                if (document.getElementById('latestIncomeSource')) {
+                    const src = latest.source || 'อื่นๆ';
+                    const icon = getSourceIcon(src);
+                    document.getElementById('latestIncomeSource').innerText = `${icon} ${src}`;
+                }
+            }
+
+            let currentChartFilter = 'ALL';
+
+            function switchChartFilter(filter) {
+                currentChartFilter = filter;
+                document.querySelectorAll('.chart-tab').forEach(btn => {
+                    const isMatch = btn.getAttribute('onclick').includes(`'${filter}'`);
+                    btn.classList.toggle('active', isMatch);
+                });
+                if (dashboardData) {
+                    const yearData = dashboardData.monthly.filter(m => m.year === currentYear);
+                    renderChart(yearData);
+                }
             }
 
             // ---------------------------------------------------------
-            // UPDATED: Chart to match the specific image style
+            // UPDATED: Chart to match the specific image style & topic filters
             // ---------------------------------------------------------
-            function renderChart(monthlyData, averageValue) {
+            function renderChart(monthlyData) {
                 const ctx = document.getElementById('incomeChart').getContext('2d');
                 const incomeValues = new Array(12).fill(0);
-                monthlyData.forEach(m => incomeValues[m.month - 1] = m.total);
+
+                monthlyData.forEach(m => {
+                    let monthTotal = 0;
+                    m.days.forEach(d => {
+                        if (currentChartFilter === 'ALL') {
+                            monthTotal += d.amount;
+                        } else {
+                            const cat = getCategoryKey(d.source);
+                            if (cat === currentChartFilter) {
+                                monthTotal += d.amount;
+                            }
+                        }
+                    });
+                    incomeValues[m.month - 1] = monthTotal;
+                });
                 
                 if (myChart) myChart.destroy();
                 
-                // Gradient for the area fill (Purple fading to transparent)
+                let themeColor = '#8b5cf6'; // Default Purple for ALL
+                if (currentChartFilter === 'Fastwork') themeColor = '#5CE1E6';
+                else if (currentChartFilter === 'Affiliate') themeColor = '#EE4D2D'; // Shopee Orange
+                else if (currentChartFilter === 'อื่นๆ') themeColor = '#FFDE59';
+
                 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, 'rgba(139, 92, 246, 0.4)'); // Purple with opacity
-                gradient.addColorStop(1, 'rgba(139, 92, 246, 0.0)'); // Transparent
+                gradient.addColorStop(0, themeColor + '66');
+                gradient.addColorStop(1, themeColor + '00');
 
                 Chart.defaults.font.family = "'Kanit', sans-serif";
                 
                 myChart = new Chart(ctx, {
-                    type: 'line', // Changed to Line Chart
+                    type: 'line',
                     data: {
                         labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
                         datasets: [{
-                            label: 'INCOME',
+                            label: currentChartFilter === 'ALL' ? 'TOTAL INCOME' : currentChartFilter.toUpperCase(),
                             data: incomeValues,
-                            borderColor: '#8b5cf6', // Neon Purple Line
+                            borderColor: themeColor,
                             borderWidth: 3,
-                            backgroundColor: gradient, // Gradient Area
+                            backgroundColor: gradient,
                             fill: true,
-                            tension: 0.4, // Smooth Curve
-                            pointBackgroundColor: '#ffffff', // White dots
-                            pointBorderColor: '#8b5cf6', // Purple border on dots
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: themeColor,
                             pointBorderWidth: 2,
                             pointRadius: 5,
                             pointHoverRadius: 7
@@ -504,17 +750,18 @@
                                 displayColors: false,
                                 callbacks: {
                                     label: function(context) {
-                                        return '฿' + context.parsed.y.toLocaleString();
+                                        const labelName = currentChartFilter === 'ALL' ? 'Total' : currentChartFilter;
+                                        return `${labelName}: ฿` + context.parsed.y.toLocaleString();
                                     }
                                 }
                             }
                         },
                         scales: {
                             y: { 
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' }, // Faint grid lines
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
                                 beginAtZero: true,
                                 ticks: { 
-                                    color: '#a1a1aa', // Grey text
+                                    color: '#a1a1aa',
                                     font: { size: 10 }
                                 },
                                 border: { display: false }
@@ -522,7 +769,7 @@
                             x: { 
                                 grid: { display: false },
                                 ticks: { 
-                                    color: '#a1a1aa', // Grey text
+                                    color: '#a1a1aa',
                                     font: { size: 10, weight: 'bold' }
                                 },
                                 border: { display: false }
@@ -555,7 +802,25 @@
                 document.getElementById('monthAvgPerDay').innerText = formatMoney(workDays ? total / workDays : 0);
                 document.getElementById('monthMaxDay').innerText = formatMoney(monthData.days.reduce((m, d) => Math.max(m, d.amount), 0));
                 const tbody = document.getElementById('dailyTableBody');
-                tbody.innerHTML = [...monthData.days].sort((a, b) => b.day - a.day).map(d => `<li class="detail-item"><span>Day ${d.day}</span><span style="font-weight: 700;">${formatMoney(d.amount)}</span></li>`).join('');
+                tbody.innerHTML = [...monthData.days].sort((a, b) => b.day - a.day).map(d => {
+                    const src = d.source || 'อื่นๆ';
+                    const bg = getSourceColor(src);
+                    const icon = getSourceIcon(src);
+                    const safeSrc = src.replace(/'/g, "\\'");
+                    return `
+                        <li class="detail-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-weight: 700;">Day ${d.day}</span>
+                                <span style="background: ${bg}; border: 1px solid #000; padding: 2px 6px; font-size: 0.75rem; font-weight: 700; border-radius: 3px;">${icon} ${src}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-weight: 700; margin-right: 5px;">${formatMoney(d.amount)}</span>
+                                <button onclick="openEditIncomeModal('${d.id}', '${d.dateStr}', ${d.amount}, '${safeSrc}', '${d.createdAt}')" title="Edit" style="background: var(--c-yellow); border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">✏️</button>
+                                <button onclick="deleteIncome('${d.id}')" title="Delete" style="background: var(--c-pink); color: white; border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">🗑️</button>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
                 document.getElementById('monthDetailModal').classList.add('active');
             }
 
@@ -579,22 +844,322 @@
             async function submitIncome() {
                 const dateVal = document.getElementById('incomeDate').value;
                 const amountVal = document.getElementById('incomeAmount').value;
+                let sourceVal = document.getElementById('incomeSource').value;
+                if (sourceVal === 'อื่นๆ') {
+                    const customVal = document.getElementById('customSourceInput').value.trim();
+                    if (customVal) sourceVal = customVal;
+                }
                 if (!dateVal || !amountVal) return showToast('MISSING DATA');
                 try {
-                    await dbSet(dbPush(dbRef(db, 'freelance-income/income')), { date: dateVal, money: parseFloat(amountVal), timestamp: new Date().toISOString() });
-                    showToast('CASH ADDED!'); document.getElementById('incomeAmount').value = ''; closeAddIncomeModal();
+                    await dbSet(dbPush(dbRef(db, 'freelance-income/income')), {
+                        date: dateVal,
+                        money: parseFloat(amountVal),
+                        source: sourceVal,
+                        timestamp: new Date().toISOString()
+                    });
+                    showToast('CASH ADDED!');
+                    document.getElementById('incomeAmount').value = '';
+                    document.getElementById('customSourceInput').value = '';
+                    closeAddIncomeModal();
                 } catch (e) { showToast(e.message); }
+            }
+
+            function toggleCustomSourceInput(val) {
+                const customInput = document.getElementById('customSourceInput');
+                if (val === 'อื่นๆ') {
+                    customInput.style.display = 'block';
+                    customInput.focus();
+                } else {
+                    customInput.style.display = 'none';
+                }
+            }
+
+            function getSourceColor(src) {
+                if (!src) return 'var(--c-yellow)';
+                if (src.includes('Fastwork')) return 'var(--c-blue)';
+                if (src.includes('Affiliate')) return '#EE4D2D'; // Shopee Orange
+                return 'var(--c-yellow)';
+            }
+
+            function getSourceIcon(src) {
+                if (!src) return '💡';
+                if (src.includes('Fastwork')) return '🚀';
+                if (src.includes('Affiliate')) return '🔗';
+                return '💡';
             }
 
             function formatMoney(n) { return '฿' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
             function showToast(msg) { const t = document.getElementById('toast'); t.classList.add('show'); document.getElementById('toastMessage').innerText = msg; setTimeout(() => t.classList.remove('show'), 3000); }
             function showLoading(show) { const el = document.getElementById('loading'); if (show) el.classList.add('active'); else el.classList.remove('active'); }
 
+            let currentEditId = null;
+            let currentEditTimestamp = null;
+
+            function openEditIncomeModal(id, dateStr, amount, source, createdAt) {
+                currentEditId = id;
+                currentEditTimestamp = createdAt;
+                document.getElementById('incomeDateEdit').value = dateStr;
+                document.getElementById('incomeAmountEdit').value = amount;
+
+                const sourceSelect = document.getElementById('incomeSourceEdit');
+                const customInput = document.getElementById('customSourceInputEdit');
+
+                if (source === 'Fastwork' || source === 'Affiliate') {
+                    sourceSelect.value = source;
+                    customInput.style.display = 'none';
+                    customInput.value = '';
+                } else {
+                    sourceSelect.value = 'อื่นๆ';
+                    customInput.style.display = 'block';
+                    customInput.value = source === 'อื่นๆ' ? '' : source;
+                }
+
+                document.getElementById('editIncomeModal').classList.add('active');
+            }
+
+            function closeEditIncomeModal() {
+                document.getElementById('editIncomeModal').classList.remove('active');
+            }
+
+            function toggleCustomSourceInputEdit(val) {
+                const customInput = document.getElementById('customSourceInputEdit');
+                if (val === 'อื่นๆ') {
+                    customInput.style.display = 'block';
+                    customInput.focus();
+                } else {
+                    customInput.style.display = 'none';
+                }
+            }
+
+            async function updateIncome() {
+                if (!currentEditId) return;
+                const dateVal = document.getElementById('incomeDateEdit').value;
+                const amountVal = document.getElementById('incomeAmountEdit').value;
+                let sourceVal = document.getElementById('incomeSourceEdit').value;
+                if (sourceVal === 'อื่นๆ') {
+                    const customVal = document.getElementById('customSourceInputEdit').value.trim();
+                    if (customVal) sourceVal = customVal;
+                }
+                if (!dateVal || !amountVal) return showToast('MISSING DATA');
+                try {
+                    await dbSet(dbRef(db, `freelance-income/income/${currentEditId}`), {
+                        date: dateVal,
+                        money: parseFloat(amountVal),
+                        source: sourceVal,
+                        timestamp: currentEditTimestamp || new Date().toISOString()
+                    });
+                    showToast('RECORD UPDATED!');
+                    closeEditIncomeModal();
+                    closeMonthDetailModal();
+                    closeSourceDetailModal();
+                } catch (e) { showToast(e.message); }
+            }
+
+            async function deleteIncome(id) {
+                if (!id) return;
+                if (!confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) return;
+                try {
+                    await dbSet(dbRef(db, `freelance-income/income/${id}`), null);
+                    showToast('RECORD DELETED!');
+                    closeEditIncomeModal();
+                    closeMonthDetailModal();
+                    closeSourceDetailModal();
+                } catch (e) { showToast(e.message); }
+            }
+
+            async function deleteIncomeFromEditModal() {
+                if (currentEditId) {
+                    await deleteIncome(currentEditId);
+                }
+            }
+
+            function openSourceDetailModal(category) {
+                if (!dashboardData) return;
+                const yearData = dashboardData.monthly.filter(m => m.year === currentYear);
+                const catDays = [];
+                let catTotal = 0;
+
+                yearData.forEach(m => {
+                    m.days.forEach(d => {
+                        const cat = getCategoryKey(d.source);
+                        if (cat === category) {
+                            catDays.push({ ...d, month: m.month, monthName: m.monthName, year: m.year });
+                            catTotal += d.amount;
+                        }
+                    });
+                });
+
+                catDays.sort((a, b) => {
+                    if (a.createdAt && b.createdAt) return new Date(b.createdAt) - new Date(a.createdAt);
+                    return (b.month - a.month) || (b.day - a.day);
+                });
+
+                const icon = getSourceIcon(category);
+                const bg = getSourceColor(category);
+
+                const headerEl = document.getElementById('sourceDetailHeader');
+                if (headerEl) headerEl.style.background = bg;
+                document.getElementById('sourceDetailTitle').innerText = `${icon} ${category.toUpperCase()} (${currentYear})`;
+                document.getElementById('sourceTotalIncome').innerText = formatMoney(catTotal);
+                document.getElementById('sourceWorkDays').innerText = catDays.length;
+
+                const tbody = document.getElementById('sourceDailyTableBody');
+                if (catDays.length === 0) {
+                    tbody.innerHTML = '<li class="detail-item" style="padding: 15px; text-align: center;">NO RECORDS</li>';
+                } else {
+                    tbody.innerHTML = catDays.map(d => {
+                        const src = d.source || 'อื่นๆ';
+                        const itemBg = getSourceColor(src);
+                        const itemIcon = getSourceIcon(src);
+                        const safeSrc = src.replace(/'/g, "\\'");
+                        return `
+                            <li class="detail-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+                                <div>
+                                    <div style="font-weight: 700;">${d.day} ${d.monthName} ${d.year}</div>
+                                    <div style="margin-top: 3px;">
+                                        <span style="background: ${itemBg}; border: 1px solid #000; padding: 1px 5px; font-size: 0.75rem; font-weight: 700; border-radius: 3px;">${itemIcon} ${src}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-weight: 700; margin-right: 5px;">${formatMoney(d.amount)}</span>
+                                    <button onclick="openEditIncomeModal('${d.id}', '${d.dateStr}', ${d.amount}, '${safeSrc}', '${d.createdAt}')" title="Edit" style="background: var(--c-yellow); border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">✏️</button>
+                                    <button onclick="deleteIncome('${d.id}')" title="Delete" style="background: var(--c-pink); color: white; border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">🗑️</button>
+                                </div>
+                            </li>
+                        `;
+                    }).join('');
+                }
+
+                document.getElementById('sourceDetailModal').classList.add('active');
+            }
+
+            function closeSourceDetailModal() {
+                document.getElementById('sourceDetailModal').classList.remove('active');
+            }
+
             window.switchYear = switchYear; window.openMonthDetailModal = openMonthDetailModal;
             window.closeMonthDetailModal = () => document.getElementById('monthDetailModal').classList.remove('active');
-            window.setGoal = setGoal; window.openAddIncomeModal = () => document.getElementById('addIncomeModal').classList.add('active');
+            window.setGoal = setGoal; 
+            window.openAddIncomeModal = () => {
+                document.getElementById('incomeSource').value = 'Fastwork';
+                document.getElementById('customSourceInput').value = '';
+                document.getElementById('customSourceInput').style.display = 'none';
+                document.getElementById('addIncomeModal').classList.add('active');
+            };
             window.closeAddIncomeModal = () => document.getElementById('addIncomeModal').classList.remove('active');
             window.submitIncome = submitIncome;
+            window.toggleCustomSourceInput = toggleCustomSourceInput;
+
+            let currentTaxCategory = 'ALL';
+
+            function switchTaxCategory(category) {
+                currentTaxCategory = category;
+                document.querySelectorAll('.tax-tab').forEach(btn => {
+                    const isMatch = btn.getAttribute('onclick').includes(`'${category}'`);
+                    btn.classList.toggle('active', isMatch);
+                });
+                if (dashboardData) {
+                    const yearData = dashboardData.monthly.filter(m => m.year === currentYear);
+                    renderTaxCalculation(yearData);
+                }
+            }
+
+            function calculateThaiTax(netIncome) {
+                if (netIncome <= 0) return { totalTax: 0, brackets: [] };
+
+                const steps = [
+                    { min: 0, max: 150000, rate: 0.00, label: '0 - 150,000 (ยกเว้น)' },
+                    { min: 150000, max: 300000, rate: 0.05, label: '150,001 - 300,000 (5%)' },
+                    { min: 300000, max: 500000, rate: 0.10, label: '300,001 - 500,000 (10%)' },
+                    { min: 500000, max: 750000, rate: 0.15, label: '500,001 - 750,000 (15%)' },
+                    { min: 750000, max: 1000000, rate: 0.20, label: '750,001 - 1,000,000 (20%)' },
+                    { min: 1000000, max: 2000000, rate: 0.25, label: '1,000,001 - 2,000,000 (25%)' },
+                    { min: 2000000, max: 5000000, rate: 0.30, label: '2,000,001 - 5,000,000 (30%)' },
+                    { min: 5000000, max: Infinity, rate: 0.35, label: 'เกิน 5,000,000 (35%)' }
+                ];
+
+                let totalTax = 0;
+                const brackets = [];
+
+                for (let step of steps) {
+                    if (netIncome > step.min) {
+                        const taxableInStep = Math.min(netIncome, step.max) - step.min;
+                        const taxInStep = taxableInStep * step.rate;
+                        totalTax += taxInStep;
+                        brackets.push({
+                            label: step.label,
+                            ratePercent: (step.rate * 100) + '%',
+                            taxableAmount: taxableInStep,
+                            taxAmount: taxInStep
+                        });
+                    }
+                }
+
+                return { totalTax, brackets };
+            }
+
+            function renderTaxCalculation(yearData) {
+                let grossIncome = 0;
+
+                yearData.forEach(m => {
+                    m.days.forEach(d => {
+                        if (currentTaxCategory === 'ALL') {
+                            grossIncome += d.amount;
+                        } else {
+                            const cat = getCategoryKey(d.source);
+                            if (cat === currentTaxCategory) {
+                                grossIncome += d.amount;
+                            }
+                        }
+                    });
+                });
+
+                // หักค่าใช้จ่าย 50% สูงสุดไม่เกิน 100,000 บาท
+                const expenseDeduction = Math.min(grossIncome * 0.5, 100000);
+                // หักลดหย่อนส่วนตัว 60,000 บาท
+                const personalAllowance = grossIncome > 0 ? 60000 : 0;
+                const totalDeductions = expenseDeduction + personalAllowance;
+
+                const netTaxableIncome = Math.max(0, grossIncome - totalDeductions);
+                const { totalTax, brackets } = calculateThaiTax(netTaxableIncome);
+                const effectiveRate = grossIncome > 0 ? ((totalTax / grossIncome) * 100).toFixed(2) : '0.00';
+
+                document.getElementById('taxGrossIncome').innerText = formatMoney(grossIncome);
+                document.getElementById('taxDeductions').innerText = `-${formatMoney(totalDeductions)}`;
+                document.getElementById('taxNetIncome').innerText = formatMoney(netTaxableIncome);
+                document.getElementById('taxPayable').innerText = formatMoney(totalTax);
+                document.getElementById('taxEffectiveRate').innerText = `อัตราภาษีเฉลี่ยสุทธิ: ${effectiveRate}%`;
+
+                const tbody = document.getElementById('taxBracketTableBody');
+                if (!tbody) return;
+
+                if (grossIncome === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 15px;">ไม่มีรายได้ในปีนี้</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = brackets.map(b => {
+                    const rowStyle = b.taxAmount > 0 ? 'background: #fffef0; font-weight: 700;' : 'color: #888;';
+                    return `
+                        <tr style="${rowStyle}">
+                            <td>${b.label}</td>
+                            <td>${b.ratePercent}</td>
+                            <td style="${b.taxAmount > 0 ? 'color: #e11d48;' : ''}">${formatMoney(b.taxAmount)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            window.openEditIncomeModal = openEditIncomeModal;
+            window.closeEditIncomeModal = closeEditIncomeModal;
+            window.toggleCustomSourceInputEdit = toggleCustomSourceInputEdit;
+            window.updateIncome = updateIncome;
+            window.deleteIncome = deleteIncome;
+            window.deleteIncomeFromEditModal = deleteIncomeFromEditModal;
+            window.openSourceDetailModal = openSourceDetailModal;
+            window.closeSourceDetailModal = closeSourceDetailModal;
+            window.switchChartFilter = switchChartFilter;
+            window.switchTaxCategory = switchTaxCategory;
         }
 
         if (window.firebaseReady) initDashboard(); else window.addEventListener('firebase-ready', initDashboard);
