@@ -5,17 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#FFDE59">
-    <title>My Money Maker</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Icons -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#090D16">
+    <title>MyIncome — บันทึกรายได้และคำนวณภาษีฟรีแลนซ์</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans (Numbers & English) & Prompt (Thai) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Boxicons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase SDK (คงเดิม) -->
+    <!-- Firebase SDK (คงเดิม 100%) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
@@ -49,265 +54,1204 @@
 
     <style>
         :root {
-            /* Neo-Brutalist Palette */
-            --bg-paper: #fffef2;
-            --c-black: #1a1a1a;
-            --c-white: #ffffff;
-            --c-yellow: #FFDE59;
-            --c-blue: #5CE1E6;
-            --c-pink: #FF66C4;
-            --c-green: #7ED957;
-            --c-purple: #8b5cf6; /* ปรับสีม่วงให้เหมือนในกราฟ */
-            
-            --border-thick: 3px solid var(--c-black);
-            --border-thin: 2px solid var(--c-black);
-            --shadow-hard: 6px 6px 0px 0px var(--c-black);
-            
-            --font-head: 'Chakra Petch', sans-serif;
-            --font-body: 'Kanit', sans-serif;
+            /* Futuristic Dark Theme & Fintech Color Palette */
+            --bg-body: #070A12;
+            --bg-card: rgba(15, 23, 42, 0.72);
+            --bg-card-hover: rgba(22, 33, 58, 0.85);
+            --bg-card-solid: #0F172A;
+            --bg-input: rgba(15, 23, 42, 0.85);
+
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.35);
+            --border-glow: rgba(16, 185, 129, 0.3);
+
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+
+            /* Vibrant Brand & Category Accents */
+            --c-emerald: #10B981;
+            --c-emerald-glow: rgba(16, 185, 129, 0.25);
+            --c-indigo: #6366F1;
+            --c-indigo-glow: rgba(99, 102, 241, 0.25);
+            --c-purple: #8B5CF6;
+            --c-cyan: #06B6D4;
+            --c-fastwork: #0EA5E9;
+            --c-affiliate: #F97316;
+            --c-other: #EAB308;
+            --c-rose: #F43F5E;
+            --c-rose-glow: rgba(244, 63, 94, 0.25);
+
+            --font-display: 'Plus Jakarta Sans', 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'Prompt', 'Plus Jakarta Sans', sans-serif;
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 26px;
+            --radius-pill: 9999px;
+
+            --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+            --shadow-glow-emerald: 0 10px 35px -5px rgba(16, 185, 129, 0.3);
+            --shadow-glow-indigo: 0 10px 35px -5px rgba(99, 102, 241, 0.3);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         body {
-            background-color: var(--bg-paper);
-            background-image: radial-gradient(var(--c-black) 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--c-black);
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(ellipse at 15% 10%, rgba(99, 102, 241, 0.14) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 15%, rgba(16, 185, 129, 0.12) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 85%, rgba(139, 92, 246, 0.09) 0%, transparent 50%),
+                radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 32px 32px;
+            background-attachment: fixed;
+            color: var(--text-primary);
             font-family: var(--font-body);
             min-height: 100vh;
-            padding-bottom: 100px;
+            padding-bottom: 120px;
+            line-height: 1.5;
+            overflow-x: hidden;
         }
 
-        .wrapper { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
-        /* Header */
-        .header-box {
-            background: var(--c-white);
-            border: var(--border-thick);
-            box-shadow: var(--shadow-hard);
-            padding: 20px;
-            margin-bottom: 30px;
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* Glass Surface Mixin */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.25s ease, 
+                        box-shadow 0.25s ease;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            pointer-events: none;
+        }
+
+        /* Header Navigation */
+        .header-bar {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            margin-bottom: 28px;
+            gap: 16px;
             flex-wrap: wrap;
-            gap: 15px;
+            border-radius: var(--radius-xl);
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+        }
+
+        .brand-text-group {
+            display: flex;
+            flex-direction: column;
         }
 
         .brand-title {
-            font-family: var(--font-head);
-            font-weight: 700;
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            background: var(--c-yellow);
-            padding: 5px 15px;
-            border: var(--border-thin);
-            transform: rotate(-2deg);
-        }
-
-        .year-scroller { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .year-tag {
-            background: var(--c-white); border: var(--border-thin); padding: 5px 15px;
-            font-family: var(--font-head); font-weight: 600; cursor: pointer;
-            transition: all 0.2s; box-shadow: 2px 2px 0 var(--c-black);
-        }
-        .year-tag.active { background: var(--c-black); color: var(--c-white); transform: translate(2px, 2px); box-shadow: none; }
-
-        /* Grid */
-        .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 30px; }
-        
-        /* Card Styles */
-        .brutal-card {
-            background: var(--c-white); border: var(--border-thick);
-            box-shadow: var(--shadow-hard); padding: 20px;
-            position: relative; transition: transform 0.2s;
-        }
-        .brutal-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0px 0px var(--c-black); }
-
-        .card-label { font-family: var(--font-head); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
-        .card-value { font-family: var(--font-head); font-weight: 700; font-size: 2rem; line-height: 1; }
-
-        .box-total { grid-column: span 8; background: var(--c-blue); }
-        .box-latest { grid-column: span 4; background: var(--c-pink); display: flex; flex-direction: column; justify-content: center; text-align: center; border-radius: 50% 50% 0 0; }
-        .box-stat { grid-column: span 4; }
-        .box-goal { grid-column: span 12; background: var(--c-black); color: var(--c-white); }
-
-        /* Chart Section - Modified for Dark Theme to match image */
-        .chart-window {
-            grid-column: span 12;
-            background: #111; /* Dark background as per image */
-            border: var(--border-thick);
-            box-shadow: var(--shadow-hard);
-            color: white;
-            overflow: hidden;
-        }
-
-        .window-header {
-            background: #000;
-            color: var(--c-white);
-            padding: 10px 15px;
-            font-family: var(--font-head);
-            font-weight: 600;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            gap: 8px;
         }
-        
-        .window-controls { display: flex; gap: 5px; }
-        .win-dot { width: 12px; height: 12px; border-radius: 50%; }
 
-        .chart-body { padding: 20px; height: 400px; background: #0f1014; /* Deep dark bg */ }
-
-        /* Goal & Input */
-        .retro-progress-container { width: 100%; height: 30px; border: 2px solid var(--c-white); margin: 15px 0; background: #333; }
-        .retro-bar { height: 100%; background: repeating-linear-gradient(45deg, var(--c-green), var(--c-green) 10px, #6bc945 10px, #6bc945 20px); width: 0%; transition: width 1s; border-right: 2px solid var(--c-white); }
-        
-        .goal-input-group { display: flex; gap: 10px; margin-top: 15px; }
-        .ugly-input { flex: 1; background: var(--c-white); border: var(--border-thin); padding: 10px; font-family: var(--font-head); font-size: 1rem; outline: none; }
-        .ugly-btn { background: var(--c-yellow); border: var(--border-thin); padding: 0 20px; font-family: var(--font-head); font-weight: 700; cursor: pointer; box-shadow: 4px 4px 0 var(--c-white); }
-        .ugly-btn:active { box-shadow: none; transform: translate(4px, 4px); }
-
-        /* Table */
-        .table-section { grid-column: span 12; background: var(--c-white); border: var(--border-thick); box-shadow: var(--shadow-hard); }
-        .brutal-table { width: 100%; border-collapse: collapse; }
-        .brutal-table th { background: var(--c-black); color: var(--c-white); padding: 15px; font-family: var(--font-head); text-align: left; }
-        .brutal-table td { padding: 15px; border: 2px solid var(--c-black); font-weight: 600; }
-        .brutal-table tr:hover { background: var(--c-yellow); }
-
-        /* FAB */
-        .sticker-fab { position: fixed; bottom: 30px; right: 30px; background: var(--c-pink); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border: var(--border-thick); box-shadow: var(--shadow-hard); cursor: pointer; z-index: 100; transform: rotate(10deg); transition: 0.2s; }
-        .sticker-fab:hover { transform: rotate(0deg) scale(1.1); }
-
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; place-items: center; z-index: 200; }
-        .modal-overlay.active { display: grid; }
-        .modal-window { background: var(--c-white); border: var(--border-thick); box-shadow: 10px 10px 0 var(--c-pink); width: 90%; max-width: 400px; }
-        .modal-content { padding: 20px; }
-        .modal-title { font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; background: var(--c-yellow); display: inline-block; padding: 5px 10px; border: var(--border-thin); margin-bottom: 20px; }
-
-        /* Toast & Loading */
-        .brutal-toast { position: fixed; top: 20px; left: 50%; transform: translate(-50%, -100px); background: var(--c-black); color: var(--c-white); padding: 15px 30px; border: 2px solid var(--c-white); font-family: var(--font-head); z-index: 300; transition: 0.3s; }
-        .brutal-toast.show { transform: translate(-50%, 0); }
-        
-        #loading.active { display: grid; }
-        
-        /* Helper for details */
-        .detail-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--c-black); background: #fff; }
-        .detail-item:nth-child(odd) { background: #f0f0f0; }
-        .detail-list { max-height: 200px; overflow-y: auto; border: var(--border-thin); }
-        .source-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px 0px var(--c-black) !important; }
-
-        .chart-tab {
-            background: #222;
-            color: #aaa;
-            border: 1px solid #444;
-            padding: 3px 10px;
-            font-family: var(--font-head);
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .chart-tab:hover { color: #fff; border-color: #888; }
-        .chart-tab.active { background: var(--c-yellow); color: #000; border-color: #000; box-shadow: 2px 2px 0 #000; }
-
-        .tax-tab {
-            background: #fff;
-            color: #000;
-            border: 2px solid #000;
-            padding: 3px 10px;
-            font-family: var(--font-head);
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 2px 2px 0 #000;
-            transition: all 0.15s;
-        }
-        .tax-tab:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #000; }
-        .tax-tab.active { background: var(--c-black); color: var(--c-white); box-shadow: none; transform: translate(2px, 2px); }
-
-        /* Tax Visual Charts */
-        .tax-viz-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #fefcf3;
-            border: 2px solid #000;
-            box-shadow: 4px 4px 0 #000;
-        }
-        .tax-viz-bar-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .tax-viz-bar-section h4, .tax-viz-staircase-section h4 {
-            font-family: var(--font-head);
-            font-size: 0.85rem;
+        .brand-badge {
+            font-size: 0.65rem;
             font-weight: 700;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            letter-spacing: 0.08em;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: rgba(99, 102, 241, 0.2);
+            color: #818CF8;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            -webkit-text-fill-color: initial;
+        }
+
+        .brand-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .tax-viz-staircase-section {
-            position: relative;
+
+        .sync-indicator {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--c-emerald);
+            display: inline-block;
+            box-shadow: 0 0 8px var(--c-emerald);
+            animation: pulse-dot 2s infinite;
         }
-        .tax-viz-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
         }
-        .tax-viz-legend-item {
+
+        /* Actions & Year Pill Scroller */
+        .header-actions {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
-        .tax-viz-legend-dot {
-            width: 12px;
-            height: 12px;
-            border: 1px solid #000;
+
+        .year-scroller {
+            display: flex;
+            gap: 6px;
+            background: rgba(2, 6, 23, 0.6);
+            padding: 4px;
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            overflow-x: auto;
         }
-        .tax-equation {
+
+        .year-tag {
+            padding: 6px 16px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .year-tag:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .year-tag.active {
+            background: linear-gradient(135deg, var(--c-indigo), #4F46E5);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-add-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-add-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+            filter: brightness(1.08);
+        }
+
+        .btn-add-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Bento Grid Layout */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        /* Card Elements */
+        .card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-label {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 8px;
-            justify-content: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .tax-eq-item {
-            text-align: center;
-            min-width: 60px;
-        }
-        .tax-eq-item .eq-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-        .tax-eq-item .eq-value {
-            font-family: var(--font-head);
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
-        .tax-eq-op {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #888;
         }
 
-        @media (max-width: 768px) {
-            .bento-grid { display: flex; flex-direction: column; }
-            .box-latest { border-radius: 0; border: var(--border-thick); }
+        .card-label i {
+            font-size: 1.1rem;
+        }
+
+        .card-value {
+            font-family: var(--font-display);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        /* Hero Income Card */
+        .box-total {
+            grid-column: span 8;
+            padding: 28px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.85) 60%), var(--bg-card);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            position: relative;
+        }
+
+        .box-total::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+            filter: blur(20px);
+        }
+
+        .box-total .card-value {
+            font-size: 3.2rem;
+            background: linear-gradient(135deg, #FFFFFF 40%, #A7F3D0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0 16px 0;
+            text-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .hero-year-pill {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* Latest Income Card */
+        .box-latest {
+            grid-column: span 4;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.12) 0%, rgba(15, 23, 42, 0.85) 70%), var(--bg-card);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .box-latest .card-value {
+            font-size: 2.1rem;
+            color: #FDA4AF;
+            margin: 8px 0;
+        }
+
+        .latest-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #FECDD3;
+            width: fit-content;
+        }
+
+        /* 3 Stat Cards */
+        .box-stat {
+            grid-column: span 4;
+            padding: 22px 24px;
+        }
+
+        .box-stat:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-hover);
+        }
+
+        .box-stat-year {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(15, 23, 42, 0.75) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+        .box-stat-year .card-value {
+            font-size: 1.9rem;
+            color: #67E8F9;
+        }
+
+        .box-stat-avg {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(15, 23, 42, 0.75) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .box-stat-avg .card-value {
+            font-size: 1.9rem;
+            color: #C4B5FD;
+        }
+
+        .box-stat-mvp {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.08) 0%, rgba(15, 23, 42, 0.75) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+        }
+        .box-stat-mvp .card-value {
+            font-size: 1.9rem;
+            color: #FDE047;
+        }
+
+        /* Sources Card */
+        .box-sources {
+            grid-column: span 12;
+            padding: 24px;
+        }
+
+        .source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 14px;
+        }
+
+        .source-card {
+            background: rgba(2, 6, 23, 0.5);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .source-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(30, 41, 59, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .source-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .source-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .source-badge {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .source-amount {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 6px 0 10px 0;
+        }
+
+        .source-progress-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-pill);
+            overflow: hidden;
+        }
+
+        .source-progress-fill {
+            height: 100%;
+            border-radius: var(--radius-pill);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .source-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .source-card:hover .source-footer {
+            color: #ffffff;
+        }
+
+        /* Goal / Target Card */
+        .box-goal {
+            grid-column: span 12;
+            padding: 28px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(15, 23, 42, 0.8) 100%), var(--bg-card);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .goal-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .goal-percent-display {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 800;
+            color: #818CF8;
+            line-height: 1;
+        }
+
+        .goal-stat-group {
+            text-align: right;
+        }
+
+        .goal-stat-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        .goal-stat-val {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 14px;
+            background: rgba(2, 6, 23, 0.7);
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(90deg, #10B981, #6366F1);
+            width: 0%;
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+        }
+
+        .goal-sub-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .goal-input-row {
+            display: flex;
+            gap: 10px;
+            max-width: 480px;
+        }
+
+        .modern-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            color: #ffffff;
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .modern-input:focus {
+            border-color: var(--c-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(30, 41, 59, 0.85);
+        }
+
+        .modern-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-modern {
+            background: linear-gradient(135deg, var(--c-indigo), #4F46E5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 10px 22px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-modern:active {
+            transform: translateY(0);
+        }
+
+        /* Chart Window */
+        .chart-window {
+            grid-column: span 12;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .window-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .chart-filter-tabs {
+            display: flex;
+            gap: 6px;
+            background: rgba(2, 6, 23, 0.6);
+            padding: 4px;
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .chart-tab {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .chart-tab:hover {
+            color: #ffffff;
+        }
+
+        .chart-tab.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-body {
+            padding: 24px;
+            height: 380px;
+            position: relative;
+        }
+
+        /* Data Logs Table Section */
+        .table-section {
+            grid-column: span 12;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .modern-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .modern-table th {
+            padding: 14px 24px;
+            background: rgba(2, 6, 23, 0.4);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modern-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: background 0.15s ease;
+        }
+
+        .modern-table tbody tr {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modern-table tbody tr:hover td {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .trend-up {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34D399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .trend-down {
+            background: rgba(244, 63, 94, 0.12);
+            color: #FB7185;
+            border: 1px solid rgba(244, 63, 94, 0.25);
+        }
+
+        /* Thai Personal Income Tax Section */
+        .tax-section {
+            grid-column: span 12;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(244, 63, 94, 0.25);
+        }
+
+        .tax-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tax-kpi-card {
+            background: rgba(2, 6, 23, 0.45);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            position: relative;
+        }
+
+        .tax-kpi-card.highlight {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(15, 23, 42, 0.85) 100%);
+            border-color: rgba(244, 63, 94, 0.35);
+        }
+
+        .tax-kpi-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .tax-kpi-val {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        /* Tax Visual Equation */
+        .tax-equation {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            padding: 16px;
+            background: rgba(2, 6, 23, 0.5);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tax-eq-item {
+            text-align: center;
+            min-width: 90px;
+        }
+
+        .tax-eq-item .eq-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .tax-eq-item .eq-value {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .tax-eq-op {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* Tax Visualization Container */
+        .tax-viz-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+            padding: 24px;
+            background: rgba(2, 6, 23, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+        }
+
+        .tax-viz-title {
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tax-viz-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .tax-viz-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tax-viz-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+        }
+
+        .tax-tab {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 14px;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-pill);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tax-tab:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tax-tab.active {
+            background: linear-gradient(135deg, var(--c-rose), #E11D48);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+        }
+
+        /* Floating Action Button */
+        .modern-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #ffffff;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modern-fab:hover {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 14px 35px rgba(16, 185, 129, 0.55);
+        }
+
+        .modern-fab:active {
+            transform: scale(0.96);
+        }
+
+        /* Modern Glass Modals */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none;
+            place-items: center;
+            z-index: 200;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            display: grid;
+            opacity: 1;
+        }
+
+        .modal-window {
+            background: #0F172A;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            transform: scale(0.94);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .modal-window {
+            transform: scale(1);
+        }
+
+        .modal-window-wide {
+            max-width: 620px;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(2, 6, 23, 0.5);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.15s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .modern-select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            color: #ffffff;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modern-select:focus {
+            border-color: var(--c-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .modern-select option {
+            background: #0F172A;
+            color: #ffffff;
+        }
+
+        /* Detail List */
+        .detail-list {
+            list-style: none;
+            max-height: 280px;
+            overflow-y: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            background: rgba(2, 6, 23, 0.4);
+            divide-y: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .detail-item {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.15s ease;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-icon-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-icon-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .btn-icon-delete:hover {
+            background: rgba(244, 63, 94, 0.2);
+            color: #FB7185;
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+
+        /* Toast & Loading */
+        .modern-toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translate(-50%, -100px);
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: var(--radius-pill);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 300;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modern-toast.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 10, 18, 0.85);
+            backdrop-filter: blur(16px);
+            display: none;
+            place-items: center;
+            z-index: 400;
+        }
+
+        #loading.active {
+            display: grid;
+        }
+
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--c-emerald);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 900px) {
+            .box-total { grid-column: span 12; }
+            .box-latest { grid-column: span 12; }
+            .box-stat { grid-column: span 6; }
             .tax-viz-container { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 600px) {
+            .box-stat { grid-column: span 12; }
+            .header-bar { flex-direction: column; align-items: stretch; }
+            .header-actions { justify-content: space-between; }
+            .box-total .card-value { font-size: 2.4rem; }
+            .goal-percent-display { font-size: 2.2rem; }
+            .modern-fab { bottom: 20px; right: 20px; width: 54px; height: 54px; font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -315,82 +1259,155 @@
 <body>
 
     <div class="wrapper">
-        <header class="header-box">
-            <div class="brand-title">💰 MONEY MAKER</div>
-            <div class="year-scroller" id="yearFilter"></div>
-        </header>
 
-        <div class="bento-grid">
-            
-            <div class="brutal-card box-total">
-                <div class="card-label"><i class='bx bxs-bank'></i> ALL TIME INCOME</div>
-                <div class="card-value" style="font-size: 3.5rem;" id="heroTotal">฿0</div>
-                <div style="margin-top: 10px; font-weight: 600;">Year: <span id="heroYear">2569</span></div>
-            </div>
-
-            <div class="brutal-card box-latest">
-                <div class="card-label" style="justify-content: center;">🔥 JUST IN!</div>
-                <div class="card-value" id="latestIncomeAmount">฿0</div>
-                <div style="font-size: 0.9rem; margin-top: 5px;" id="latestIncomeDate">-</div>
-                <div style="margin-top: 6px;"><span id="latestIncomeSource" style="font-size: 0.8rem; font-weight: 700; background: var(--c-black); color: var(--c-white); padding: 2px 8px; border: 1px solid var(--c-black); display: inline-block;">-</span></div>
-            </div>
-
-            <div class="brutal-card box-stat" style="background: var(--c-green);">
-                <div class="card-label"><i class='bx bx-money'></i> THIS YEAR</div>
-                <div class="card-value" id="totalIncome">฿0</div>
-            </div>
-
-            <div class="brutal-card box-stat" style="background: #CB6CE6; color: white;">
-                <div class="card-label"><i class='bx bx-calculator'></i> AVG / MONTH</div>
-                <div class="card-value" id="avgIncome">฿0</div>
-            </div>
-
-            <div class="brutal-card box-stat" style="background: var(--c-yellow);">
-                <div class="card-label"><i class='bx bxs-trophy'></i> MVP MONTH</div>
-                <div class="card-value" id="bestMonth">฿0</div>
-                <div style="font-size: 0.8rem;" id="bestMonthName">-</div>
-            </div>
-
-            <div class="brutal-card box-sources" style="grid-column: span 12; background: var(--c-white);">
-                <div class="card-label"><i class='bx bx-pie-chart-alt-2'></i> INCOME SOURCES (ช่องทางรายได้)</div>
-                <div id="sourceBreakdownList" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;"></div>
-            </div>
-
-            <div class="brutal-card box-goal">
-                <div class="card-label" style="color: var(--c-yellow);"><i class='bx bx-crosshair'></i> MISSION TARGET</div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div style="font-size: 3rem; font-family: var(--font-head); font-weight: 700;" id="heroGoal">0%</div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.8rem; color: #aaa;">TARGET</div>
-                        <div id="goalTargetDisplay">฿0</div>
+        <!-- Top Header Navigation Bar -->
+        <header class="header-bar">
+            <div class="brand-container">
+                <div class="brand-icon-box">
+                    <i class='bx bxs-wallet'></i>
+                </div>
+                <div class="brand-text-group">
+                    <div class="brand-title">
+                        MyIncome <span class="brand-badge">PRO</span>
+                    </div>
+                    <div class="brand-subtitle">
+                        <span class="sync-indicator"></span> บันทึกรายได้ & วางแผนภาษีฟรีแลนซ์
                     </div>
                 </div>
-                <div class="retro-progress-container"><div class="retro-bar" id="gaugeProgress"></div></div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>REMAINING: <strong id="goalRemainingDisplay" style="color: var(--c-pink);">฿0</strong></span>
+            </div>
+
+            <div class="header-actions">
+                <div class="year-scroller" id="yearFilter"></div>
+                <button class="btn-add-primary" onclick="openAddIncomeModal()">
+                    <i class='bx bx-plus' style="font-size: 1.2rem;"></i> เพิ่มรายได้
+                </button>
+            </div>
+        </header>
+
+        <!-- Bento Grid Dashboard -->
+        <div class="bento-grid">
+            
+            <!-- All Time Hero Card -->
+            <div class="glass-card box-total">
+                <div class="card-header-row">
+                    <div class="card-label">
+                        <i class='bx bxs-bank' style="color: #34D399;"></i> ALL TIME INCOME
+                    </div>
+                    <div class="hero-year-pill">
+                        ปี <span id="heroYear">2569</span>
+                    </div>
                 </div>
-                <div class="goal-input-group">
-                    <input type="number" id="goalInput" class="ugly-input" placeholder="Set New Target...">
-                    <button onclick="setGoal()" class="ugly-btn">SET</button>
+                <div class="card-value" id="heroTotal">฿0</div>
+                <div class="hero-meta">
+                    <i class='bx bx-trending-up' style="color: #34D399; font-size: 1.2rem;"></i>
+                    <span>ยอดรวมรายได้สะสมทั้งหมดที่บันทึกในระบบ</span>
                 </div>
             </div>
 
-            <!-- Chart Window (Styled like the requested image) -->
-            <div class="chart-window">
-                <div class="window-header" style="flex-wrap: wrap; gap: 10px;">
-                    <span style="display: flex; align-items: center; gap: 8px;">
-                        <i class='bx bxs-bar-chart-alt-2' style="color: var(--c-blue)"></i> ANALYTICS
-                    </span>
-                    <div class="chart-filter-tabs" id="chartFilterTabs" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <!-- Latest Income ("JUST IN") -->
+            <div class="glass-card box-latest">
+                <div class="card-header-row">
+                    <div class="card-label" style="color: #FDA4AF;">
+                        <i class='bx bxs-zap' style="color: #F43F5E;"></i> JUST IN!
+                    </div>
+                    <span class="latest-badge" id="latestIncomeDate">-</span>
+                </div>
+                <div>
+                    <div class="card-value" id="latestIncomeAmount">฿0</div>
+                    <div style="margin-top: 6px;">
+                        <span id="latestIncomeSource" class="latest-badge" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;">-</span>
+                    </div>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;">
+                    รายการเงินเข้าล่าสุด
+                </div>
+            </div>
+
+            <!-- Stat 1: This Year -->
+            <div class="glass-card box-stat box-stat-year">
+                <div class="card-header-row">
+                    <div class="card-label" style="color: #67E8F9;">
+                        <i class='bx bx-calendar-star'></i> THIS YEAR
+                    </div>
+                </div>
+                <div class="card-value" id="totalIncome">฿0</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">รายได้รวมในปีที่เลือก</div>
+            </div>
+
+            <!-- Stat 2: Avg per month -->
+            <div class="glass-card box-stat box-stat-avg">
+                <div class="card-header-row">
+                    <div class="card-label" style="color: #C4B5FD;">
+                        <i class='bx bx-calculator'></i> AVG / MONTH
+                    </div>
+                </div>
+                <div class="card-value" id="avgIncome">฿0</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">รายได้เฉลี่ยต่อเดือน</div>
+            </div>
+
+            <!-- Stat 3: MVP Month -->
+            <div class="glass-card box-stat box-stat-mvp">
+                <div class="card-header-row">
+                    <div class="card-label" style="color: #FDE047;">
+                        <i class='bx bxs-trophy'></i> MVP MONTH
+                    </div>
+                    <span id="bestMonthName" class="brand-badge" style="background: rgba(234, 179, 8, 0.15); color: #FDE047; border-color: rgba(234, 179, 8, 0.3);">-</span>
+                </div>
+                <div class="card-value" id="bestMonth">฿0</div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">เดือนที่ทำเงินได้สูงสุด</div>
+            </div>
+
+            <!-- Sources Breakdown -->
+            <div class="glass-card box-sources">
+                <div class="card-header-row">
+                    <div class="card-label">
+                        <i class='bx bx-pie-chart-alt-2' style="color: #818CF8;"></i> INCOME SOURCES (ช่องทางรายได้)
+                    </div>
+                    <span style="font-size: 0.78rem; color: var(--text-muted);">คลิกการ์ดเพื่อดูรายการแยกประเภท</span>
+                </div>
+                <div class="source-grid" id="sourceBreakdownList"></div>
+            </div>
+
+            <!-- Target & Goal -->
+            <div class="glass-card box-goal">
+                <div class="goal-header-flex">
+                    <div>
+                        <div class="card-label" style="color: #818CF8; margin-bottom: 6px;">
+                            <i class='bx bx-target-lock'></i> MISSION TARGET GOAL
+                        </div>
+                        <div class="goal-percent-display" id="heroGoal">0%</div>
+                    </div>
+                    <div class="goal-stat-group">
+                        <div class="goal-stat-label">เป้าหมายประจำปี</div>
+                        <div class="goal-stat-val" id="goalTargetDisplay">฿0</div>
+                    </div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="gaugeProgress"></div>
+                </div>
+                <div class="goal-sub-row">
+                    <span>ยังขาดอีก: <strong id="goalRemainingDisplay" style="color: #FB7185;">฿0</strong></span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">อัพเดทอัตโนมัติตามรายได้</span>
+                </div>
+                <div class="goal-input-row">
+                    <input type="number" id="goalInput" class="modern-input" placeholder="ระบุเป้าหมายใหม่ (บาท)...">
+                    <button onclick="setGoal()" class="btn-modern">
+                        <i class='bx bx-check'></i> ตั้งเป้าหมาย
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chart Window -->
+            <div class="glass-card chart-window">
+                <div class="window-header">
+                    <div class="card-label">
+                        <i class='bx bxs-bar-chart-alt-2' style="color: #38BDF8;"></i> REVENUE ANALYTICS
+                    </div>
+                    <div class="chart-filter-tabs" id="chartFilterTabs">
                         <button class="chart-tab active" onclick="switchChartFilter('ALL')">ALL</button>
                         <button class="chart-tab" onclick="switchChartFilter('Fastwork')">🚀 Fastwork</button>
                         <button class="chart-tab" onclick="switchChartFilter('Affiliate')">🔗 Affiliate</button>
                         <button class="chart-tab" onclick="switchChartFilter('อื่นๆ')">💡 อื่นๆ</button>
-                    </div>
-                    <div class="window-controls">
-                        <div class="win-dot" style="background: var(--c-pink);"></div>
-                        <div class="win-dot" style="background: var(--c-yellow);"></div>
-                        <div class="win-dot" style="background: var(--c-green);"></div>
                     </div>
                 </div>
                 <div class="chart-body">
@@ -398,22 +1415,34 @@
                 </div>
             </div>
 
-            <div class="table-section">
-                <div class="window-header" style="background: var(--c-white); color: var(--c-black); border-bottom: var(--border-thick);">
-                    <span>DATA_LOGS</span>
+            <!-- Monthly Ledger Logs Table -->
+            <div class="glass-card table-section">
+                <div class="window-header">
+                    <div class="card-label">
+                        <i class='bx bx-list-ul' style="color: #A78BFA;"></i> MONTHLY LEDGER LOGS
+                    </div>
+                    <span style="font-size: 0.78rem; color: var(--text-muted);">คลิกแต่ละเดือนเพื่อดูและจัดการรายการรายวัน</span>
                 </div>
-                <table class="brutal-table">
-                    <thead><tr><th>MONTH</th><th>INCOME</th><th>TREND</th></tr></thead>
-                    <tbody id="monthlyTable"></tbody>
-                </table>
+                <div class="modern-table-container">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>MONTH</th>
+                                <th>TOTAL INCOME</th>
+                                <th>TREND VS AVG</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyTable"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Thai Personal Income Tax Estimator -->
-            <div class="table-section" style="grid-column: span 12; background: var(--c-white);">
-                <div class="window-header" style="background: var(--c-yellow); color: var(--c-black); border-bottom: var(--border-thick); flex-wrap: wrap; gap: 10px; justify-content: space-between;">
-                    <span style="display: flex; align-items: center; gap: 8px;">
-                        <i class='bx bx-calculator'></i> THAI TAX ESTIMATOR (คำนวณภาษีเงินได้บุคคลธรรมดาคร่าวๆ)
-                    </span>
+            <div class="glass-card tax-section">
+                <div class="window-header">
+                    <div class="card-label" style="color: #FB7185;">
+                        <i class='bx bx-calculator'></i> THAI TAX ESTIMATOR (คำนวณภาษีเงินได้บุคคลธรรมดา)
+                    </div>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                         <button class="tax-tab active" onclick="switchTaxCategory('ALL')">ALL</button>
                         <button class="tax-tab" onclick="switchTaxCategory('Fastwork')">🚀 Fastwork</button>
@@ -421,53 +1450,60 @@
                         <button class="tax-tab" onclick="switchTaxCategory('อื่นๆ')">💡 อื่นๆ</button>
                     </div>
                 </div>
-                <div style="padding: 20px;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                        <div style="background: #f8f9fa; border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000;">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #666;">รายได้รวมพึงประเมิน</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #000;" id="taxGrossIncome">฿0</div>
+                <div style="padding: 24px;">
+                    <div class="tax-kpi-grid">
+                        <div class="tax-kpi-card">
+                            <div class="tax-kpi-label">รายได้รวมพึงประเมิน</div>
+                            <div class="tax-kpi-val" id="taxGrossIncome">฿0</div>
                         </div>
-                        <div style="background: #f8f9fa; border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000;">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #666;">หักค่าใช้จ่าย 50% (ไม่เกิน 1 แสน) + ลดหย่อนส่วนตัว 6 หมื่น</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #d97706;" id="taxDeductions">-฿0</div>
+                        <div class="tax-kpi-card">
+                            <div class="tax-kpi-label">หักค่าใช้จ่าย 50% (≤ 1 แสน) + ลดหย่อน 6 หมื่น</div>
+                            <div class="tax-kpi-val" style="color: #F59E0B;" id="taxDeductions">-฿0</div>
                         </div>
-                        <div style="background: #f8f9fa; border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000;">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #666;">เงินได้สุทธินำไปคิดภาษี</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #2563eb;" id="taxNetIncome">฿0</div>
+                        <div class="tax-kpi-card">
+                            <div class="tax-kpi-label">เงินได้สุทธินำไปคิดภาษี</div>
+                            <div class="tax-kpi-val" style="color: #60A5FA;" id="taxNetIncome">฿0</div>
                         </div>
-                        <div style="background: var(--c-pink); border: 2px solid black; padding: 15px; box-shadow: 4px 4px 0 #000; color: black;">
-                            <div style="font-size: 0.8rem; font-weight: 700;">ภาษีประมาณการที่ต้องจ่าย 💸</div>
-                            <div style="font-size: 1.7rem; font-weight: 700; color: #000;" id="taxPayable">฿0</div>
-                            <div style="font-size: 0.75rem; font-weight: 700; margin-top: 3px;" id="taxEffectiveRate">อัตราภาษีเฉลี่ยสุทธิ: 0%</div>
+                        <div class="tax-kpi-card highlight">
+                            <div class="tax-kpi-label" style="color: #FECDD3;">ภาษีประมาณการที่ต้องจ่าย 💸</div>
+                            <div class="tax-kpi-val" style="color: #FB7185;" id="taxPayable">฿0</div>
+                            <div style="font-size: 0.78rem; font-weight: 600; color: #FECDD3; margin-top: 4px;" id="taxEffectiveRate">อัตราภาษีเฉลี่ยสุทธิ: 0%</div>
                         </div>
                     </div>
 
                     <!-- Tax Equation -->
                     <div class="tax-equation" id="taxEquation"></div>
 
-                    <!-- Visual Tax Charts (howtotax style) -->
+                    <!-- Visual Tax Charts -->
                     <div class="tax-viz-container">
-                        <div class="tax-viz-bar-section">
-                            <h4>📊 สัดส่วนรายได้</h4>
-                            <canvas id="taxStackedBar" width="200" height="380"></canvas>
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div class="tax-viz-title">
+                                <i class='bx bx-pie-chart-alt'></i> สัดส่วนรายได้
+                            </div>
+                            <canvas id="taxStackedBar" width="220" height="380"></canvas>
                             <div class="tax-viz-legend">
-                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #7A5D52;"></div>รายได้</div>
-                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #1078A4;"></div>ค่าใช้จ่าย</div>
-                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #16AD82;"></div>ลดหย่อน</div>
-                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #F7353B;"></div>ภาษี</div>
+                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #64748B;"></div>รายได้</div>
+                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #0284C7;"></div>ค่าใช้จ่าย</div>
+                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #10B981;"></div>ลดหย่อน</div>
+                                <div class="tax-viz-legend-item"><div class="tax-viz-legend-dot" style="background: #F43F5E;"></div>ภาษี</div>
                             </div>
                         </div>
-                        <div class="tax-viz-staircase-section">
-                            <h4>📐 ขั้นบันไดภาษี (เงินได้สุทธิ vs อัตราภาษี)</h4>
+                        <div style="position: relative;">
+                            <div class="tax-viz-title">
+                                <i class='bx bx-line-chart-down'></i> ขั้นบันไดภาษี (เงินได้สุทธิ vs อัตราภาษี)
+                            </div>
                             <canvas id="taxStaircaseChart" height="380"></canvas>
                         </div>
                     </div>
 
-                    <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.9rem;">📊 ตารางคำนวณภาษีแบบก้าวหน้า (Progressive Tax Rates):</div>
-                    <div style="overflow-x: auto;">
-                        <table class="brutal-table" style="font-size: 0.85rem;">
+                    <!-- Progressive Bracket Table -->
+                    <div style="font-weight: 700; margin-bottom: 12px; font-size: 0.88rem; color: var(--text-secondary);">
+                        📊 ตารางคำนวณภาษีแบบก้าวหน้า (Progressive Tax Rates):
+                    </div>
+                    <div class="modern-table-container" style="border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+                        <table class="modern-table">
                             <thead>
-                                <tr style="background: #111; color: white;">
+                                <tr>
                                     <th>ขั้นเงินได้สุทธิ (บาท)</th>
                                     <th>อัตราภาษี</th>
                                     <th>ภาษีที่ต้องชำระในขั้นนี้</th>
@@ -482,91 +1518,176 @@
         </div>
     </div>
 
-    <div class="sticker-fab" onclick="openAddIncomeModal()"><i class='bx bx-plus'></i></div>
+    <!-- Floating Action Button -->
+    <div class="modern-fab" onclick="openAddIncomeModal()" title="เพิ่มรายได้">
+        <i class='bx bx-plus'></i>
+    </div>
 
-    <!-- Modals -->
+    <!-- Modal 1: Add Cash -->
     <div id="addIncomeModal" class="modal-overlay">
         <div class="modal-window">
-            <div class="window-header"><span>NEW_ENTRY</span><div class="window-controls" onclick="closeAddIncomeModal()" style="cursor: pointer;">✖</div></div>
-            <div class="modal-content">
-                <div class="modal-title">ADD CASH 💸</div>
-                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">DATE</label><input type="text" id="incomeDate" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="d/m/yyyy"></div>
-                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">AMOUNT</label><input type="number" id="incomeAmount" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="0.00"></div>
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">SOURCE (ที่มาของเงิน)</label>
-                    <select id="incomeSource" class="ugly-input" style="width: 100%; border: 2px solid black; cursor: pointer; background: white; font-weight: 600;" onchange="toggleCustomSourceInput(this.value)">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class='bx bxs-wallet' style="color: #10B981;"></i> เพิ่มบันทึกรายได้ 💸
+                </div>
+                <div class="modal-close-btn" onclick="closeAddIncomeModal()">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">วันที่รับเงิน</label>
+                    <input type="text" id="incomeDate" class="modern-input" style="width: 100%;" placeholder="d/m/yyyy">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">จำนวนเงิน (บาท)</label>
+                    <input type="number" id="incomeAmount" class="modern-input" style="width: 100%; font-size: 1.1rem; font-weight: 700;" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ที่มาของเงิน (SOURCE)</label>
+                    <select id="incomeSource" class="modern-select" onchange="toggleCustomSourceInput(this.value)">
                         <option value="Fastwork">🚀 Fastwork</option>
                         <option value="Affiliate">🔗 Affiliate</option>
                         <option value="อื่นๆ">💡 อื่นๆ</option>
                     </select>
-                    <input type="text" id="customSourceInput" class="ugly-input" style="width: 100%; border: 2px solid black; margin-top: 8px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
+                    <input type="text" id="customSourceInput" class="modern-input" style="width: 100%; margin-top: 10px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
                 </div>
-                <button onclick="submitIncome()" class="ugly-btn" style="width: 100%; padding: 15px; background: var(--c-green);">SAVE RECORD</button>
+                <button onclick="submitIncome()" class="btn-modern" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10B981, #059669); font-size: 1rem;">
+                    <i class='bx bx-save'></i> บันทึกข้อมูล
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Modal 2: Month Details -->
     <div id="monthDetailModal" class="modal-overlay">
-        <div class="modal-window">
-             <div class="window-header" style="background: var(--c-blue);"><span id="monthDetailTitle">DETAILS</span><div class="window-controls" onclick="closeMonthDetailModal()" style="cursor: pointer;">✖</div></div>
-            <div class="modal-content">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>TOTAL</small><div style="font-weight: 700;" id="monthTotalIncome">฿0</div></div>
-                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>BEST DAY</small><div style="font-weight: 700;" id="monthMaxDay">฿0</div></div>
-                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>DAYS</small><div style="font-weight: 700;" id="monthWorkDays">0</div></div>
-                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>AVG</small><div style="font-weight: 700;" id="monthAvgPerDay">฿0</div></div>
+        <div class="modal-window modal-window-wide">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class='bx bx-calendar' style="color: #38BDF8;"></i> <span id="monthDetailTitle">MONTH DETAILS</span>
                 </div>
-                <div style="font-weight: 700; margin-bottom: 5px;">HISTORY LOG (คลิก ✏️ เพื่อแก้ไข / 🗑️ เพื่อลบ):</div>
+                <div class="modal-close-btn" onclick="closeMonthDetailModal()">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: rgba(2, 6, 23, 0.5); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">TOTAL</small>
+                        <div style="font-weight: 800; font-family: var(--font-display); font-size: 1.1rem; color: #34D399;" id="monthTotalIncome">฿0</div>
+                    </div>
+                    <div style="background: rgba(2, 6, 23, 0.5); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">BEST DAY</small>
+                        <div style="font-weight: 800; font-family: var(--font-display); font-size: 1.1rem; color: #FDE047;" id="monthMaxDay">฿0</div>
+                    </div>
+                    <div style="background: rgba(2, 6, 23, 0.5); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">ENTRIES</small>
+                        <div style="font-weight: 800; font-family: var(--font-display); font-size: 1.1rem; color: #60A5FA;" id="monthWorkDays">0</div>
+                    </div>
+                    <div style="background: rgba(2, 6, 23, 0.5); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">AVG / DAY</small>
+                        <div style="font-weight: 800; font-family: var(--font-display); font-size: 1.1rem; color: #C4B5FD;" id="monthAvgPerDay">฿0</div>
+                    </div>
+                </div>
+                <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-secondary);">
+                    ประวัติรายการในเดือนนี้ (คลิก ✏️ เพื่อแก้ไข / 🗑️ เพื่อลบ):
+                </div>
                 <ul class="detail-list" id="dailyTableBody"></ul>
             </div>
         </div>
     </div>
 
+    <!-- Modal 3: Edit Cash -->
     <div id="editIncomeModal" class="modal-overlay">
         <div class="modal-window">
-            <div class="window-header" style="background: var(--c-yellow); color: var(--c-black);"><span>EDIT_ENTRY</span><div class="window-controls" onclick="closeEditIncomeModal()" style="cursor: pointer;">✖</div></div>
-            <div class="modal-content">
-                <div class="modal-title">EDIT CASH ✏️</div>
-                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">DATE</label><input type="text" id="incomeDateEdit" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="d/m/yyyy"></div>
-                <div style="margin-bottom: 15px;"><label style="font-weight: 700; display: block; margin-bottom: 5px;">AMOUNT</label><input type="number" id="incomeAmountEdit" class="ugly-input" style="width: 100%; border: 2px solid black;" placeholder="0.00"></div>
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">SOURCE (ที่มาของเงิน)</label>
-                    <select id="incomeSourceEdit" class="ugly-input" style="width: 100%; border: 2px solid black; cursor: pointer; background: white; font-weight: 600;" onchange="toggleCustomSourceInputEdit(this.value)">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class='bx bx-edit' style="color: #FBBF24;"></i> แก้ไขรายการรายได้ ✏️
+                </div>
+                <div class="modal-close-btn" onclick="closeEditIncomeModal()">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">วันที่</label>
+                    <input type="text" id="incomeDateEdit" class="modern-input" style="width: 100%;" placeholder="d/m/yyyy">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">จำนวนเงิน (บาท)</label>
+                    <input type="number" id="incomeAmountEdit" class="modern-input" style="width: 100%; font-size: 1.1rem; font-weight: 700;" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ที่มาของเงิน</label>
+                    <select id="incomeSourceEdit" class="modern-select" onchange="toggleCustomSourceInputEdit(this.value)">
                         <option value="Fastwork">🚀 Fastwork</option>
                         <option value="Affiliate">🔗 Affiliate</option>
                         <option value="อื่นๆ">💡 อื่นๆ</option>
                     </select>
-                    <input type="text" id="customSourceInputEdit" class="ugly-input" style="width: 100%; border: 2px solid black; margin-top: 8px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
+                    <input type="text" id="customSourceInputEdit" class="modern-input" style="width: 100%; margin-top: 10px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="updateIncome()" class="ugly-btn" style="flex: 1; padding: 12px; background: var(--c-green);">SAVE CHANGES</button>
-                    <button onclick="deleteIncomeFromEditModal()" class="ugly-btn" style="padding: 12px; background: var(--c-pink); color: white;">DELETE</button>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="updateIncome()" class="btn-modern" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10B981, #059669);">
+                        <i class='bx bx-check'></i> บันทึกการแก้ไข
+                    </button>
+                    <button onclick="deleteIncomeFromEditModal()" class="btn-modern" style="padding: 12px 18px; background: rgba(244, 63, 94, 0.2); border-color: rgba(244, 63, 94, 0.4); color: #FB7185;">
+                        <i class='bx bx-trash'></i> ลบ
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal 4: Source Details -->
     <div id="sourceDetailModal" class="modal-overlay">
-        <div class="modal-window">
-             <div class="window-header" id="sourceDetailHeader" style="background: var(--c-yellow); color: var(--c-black);">
-                 <span id="sourceDetailTitle">SOURCE DETAILS</span>
-                 <div class="window-controls" onclick="closeSourceDetailModal()" style="cursor: pointer;">✖</div>
-             </div>
-            <div class="modal-content">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>TOTAL</small><div style="font-weight: 700;" id="sourceTotalIncome">฿0</div></div>
-                    <div style="background: #f0f0f0; padding: 10px; border: 2px solid black;"><small>ENTRIES</small><div style="font-weight: 700;" id="sourceWorkDays">0</div></div>
+        <div class="modal-window modal-window-wide">
+            <div class="modal-header" id="sourceDetailHeader">
+                <div class="modal-title">
+                    <i class='bx bx-layer' style="color: #60A5FA;"></i> <span id="sourceDetailTitle">SOURCE DETAILS</span>
                 </div>
-                <div style="font-weight: 700; margin-bottom: 5px;">ALL TRANSACTIONS:</div>
+                <div class="modal-close-btn" onclick="closeSourceDetailModal()">
+                    <i class='bx bx-x'></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                    <div style="background: rgba(2, 6, 23, 0.5); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">TOTAL INCOME</small>
+                        <div style="font-weight: 800; font-family: var(--font-display); font-size: 1.3rem; color: #34D399;" id="sourceTotalIncome">฿0</div>
+                    </div>
+                    <div style="background: rgba(2, 6, 23, 0.5); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); text-align: center;">
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">TOTAL TRANSACTIONS</small>
+                        <div style="font-weight: 800; font-family: var(--font-display); font-size: 1.3rem; color: #60A5FA;" id="sourceWorkDays">0</div>
+                    </div>
+                </div>
+                <div style="font-weight: 700; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-secondary);">
+                    รายการธุรกรรมทั้งหมดในหมวดหมู่นี้:
+                </div>
                 <ul class="detail-list" id="sourceDailyTableBody"></ul>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="brutal-toast"><span id="toastMessage">ACTION COMPLETED</span></div>
-    <div id="loading" class="modal-overlay active" style="background: var(--c-yellow);"><div style="font-family: var(--font-head); font-size: 2rem; font-weight: 700; animation: blink 0.5s infinite;">LOADING...</div></div>
-    <style>@keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.2;} 100% {opacity: 1;} }</style>
+    <!-- Toast Notification -->
+    <div id="toast" class="modern-toast">
+        <i class='bx bx-check-circle' style="color: #10B981; font-size: 1.3rem;"></i>
+        <span id="toastMessage">ACTION COMPLETED</span>
+    </div>
 
+    <!-- Loading Screen -->
+    <div id="loading" class="modal-overlay active">
+        <div style="text-align: center;">
+            <div class="loader-spinner" style="margin: 0 auto 16px auto;"></div>
+            <div style="font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: #ffffff; letter-spacing: 0.05em;">
+                CONNECTING DATABASE...
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                กำลังโหลดข้อมูลรายได้จาก Firebase
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script (Logic Preserved 100%) -->
     <script>
         function initDashboard() {
             const firebase = window.firebase;
@@ -719,19 +1840,22 @@
                 const html = categories.map(cat => {
                     const amt = categoryTotals[cat] || 0;
                     const pct = totalIncomeInYear > 0 ? ((amt / totalIncomeInYear) * 100).toFixed(1) : '0.0';
-                    const color = getSourceColor(cat);
                     const icon = getSourceIcon(cat);
+                    const accentColor = getSourceAccent(cat);
+
                     return `
-                        <div onclick="openSourceDetailModal('${cat}')" class="source-card" style="flex: 1; min-width: 180px; background: ${color}; border: var(--border-thin); padding: 12px; box-shadow: 3px 3px 0 #000; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;">
-                            <div style="font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between;">
-                                <span>${icon} ${cat}</span>
-                                <span style="background: #000; color: #fff; padding: 1px 6px; font-size: 0.75rem;">${pct}%</span>
+                        <div onclick="openSourceDetailModal('${cat}')" class="source-card">
+                            <div class="source-top-row">
+                                <span class="source-title" style="color: ${accentColor};">
+                                    <span>${icon}</span> ${cat}
+                                </span>
+                                <span class="source-badge" style="color: ${accentColor};">${pct}%</span>
                             </div>
-                            <div style="font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; margin-top: 5px;">${formatMoney(amt)}</div>
-                            <div style="width: 100%; background: rgba(0,0,0,0.15); height: 6px; margin-top: 8px; border: 1px solid #000;">
-                                <div style="width: ${pct}%; background: #000; height: 100%;"></div>
+                            <div class="source-amount">${formatMoney(amt)}</div>
+                            <div class="source-progress-bg">
+                                <div class="source-progress-fill" style="width: ${pct}%; background: ${accentColor};"></div>
                             </div>
-                            <div style="font-size: 0.75rem; text-align: right; margin-top: 5px; font-weight: 700; text-decoration: underline;">VIEW LOG ➔</div>
+                            <div class="source-footer">ดูประวัติรายการ ➔</div>
                         </div>
                     `;
                 }).join('');
@@ -778,9 +1902,6 @@
                 }
             }
 
-            // ---------------------------------------------------------
-            // UPDATED: Chart to match the specific image style & topic filters
-            // ---------------------------------------------------------
             function renderChart(monthlyData) {
                 const ctx = document.getElementById('incomeChart').getContext('2d');
                 const incomeValues = new Array(12).fill(0);
@@ -802,16 +1923,16 @@
                 
                 if (myChart) myChart.destroy();
                 
-                let themeColor = '#8b5cf6'; // Default Purple for ALL
-                if (currentChartFilter === 'Fastwork') themeColor = '#5CE1E6';
-                else if (currentChartFilter === 'Affiliate') themeColor = '#EE4D2D'; // Shopee Orange
-                else if (currentChartFilter === 'อื่นๆ') themeColor = '#FFDE59';
+                let themeColor = '#8B5CF6'; // Default Violet
+                if (currentChartFilter === 'Fastwork') themeColor = '#0EA5E9';
+                else if (currentChartFilter === 'Affiliate') themeColor = '#F97316';
+                else if (currentChartFilter === 'อื่นๆ') themeColor = '#EAB308';
 
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, themeColor + '66');
+                const gradient = ctx.createLinearGradient(0, 0, 0, 360);
+                gradient.addColorStop(0, themeColor + '55');
                 gradient.addColorStop(1, themeColor + '00');
 
-                Chart.defaults.font.family = "'Kanit', sans-serif";
+                Chart.defaults.font.family = "'Plus Jakarta Sans', 'Prompt', sans-serif";
                 
                 myChart = new Chart(ctx, {
                     type: 'line',
@@ -828,22 +1949,27 @@
                             pointBackgroundColor: '#ffffff',
                             pointBorderColor: themeColor,
                             pointBorderWidth: 2,
-                            pointRadius: 5,
+                            pointRadius: 4,
                             pointHoverRadius: 7
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                titleColor: '#000',
-                                bodyColor: '#000',
-                                titleFont: { weight: 'bold' },
-                                padding: 10,
-                                cornerRadius: 4,
+                                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                titleColor: '#F8FAFC',
+                                bodyColor: '#94A3B8',
+                                borderColor: 'rgba(255, 255, 255, 0.12)',
+                                borderWidth: 1,
+                                padding: 12,
+                                cornerRadius: 10,
                                 displayColors: false,
                                 callbacks: {
                                     label: function(context) {
@@ -855,19 +1981,20 @@
                         },
                         scales: {
                             y: { 
-                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
                                 beginAtZero: true,
                                 ticks: { 
-                                    color: '#a1a1aa',
-                                    font: { size: 10 }
+                                    color: '#64748B',
+                                    font: { size: 11 },
+                                    callback: function(value) { return '฿' + formatShortMoney(value); }
                                 },
                                 border: { display: false }
                             },
                             x: { 
                                 grid: { display: false },
                                 ticks: { 
-                                    color: '#a1a1aa',
-                                    font: { size: 10, weight: 'bold' }
+                                    color: '#94A3B8',
+                                    font: { size: 11, weight: '600' }
                                 },
                                 border: { display: false }
                             }
@@ -875,7 +2002,6 @@
                     }
                 });
             }
-            // ---------------------------------------------------------
 
             function renderTable(data, avg) {
                 const tbody = document.getElementById('monthlyTable');
@@ -883,11 +2009,22 @@
                 [...data].sort((a, b) => b.month - a.month).forEach(m => {
                     const diff = m.total - avg;
                     const percent = avg > 0 ? ((diff / avg) * 100).toFixed(0) : 0;
-                    const icon = diff >= 0 ? '▲' : '▼';
-                    const color = diff >= 0 ? '#7ED957' : '#FF66C4';
-                    html += `<tr onclick='openMonthDetailModal(${JSON.stringify(m)})' style="cursor: pointer;"><td>${m.monthName}</td><td>${formatMoney(m.total)}</td><td style="color: ${color}; font-weight: 800;">${icon} ${Math.abs(percent)}%</td></tr>`;
+                    const isUp = diff >= 0;
+                    const badgeClass = isUp ? 'trend-up' : 'trend-down';
+                    const icon = isUp ? '▲' : '▼';
+                    html += `
+                        <tr onclick='openMonthDetailModal(${JSON.stringify(m)})'>
+                            <td style="font-weight: 700; color: #ffffff;">${m.monthName}</td>
+                            <td style="font-family: var(--font-display); font-weight: 700;">${formatMoney(m.total)}</td>
+                            <td>
+                                <span class="trend-badge ${badgeClass}">
+                                    ${icon} ${Math.abs(percent)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `;
                 });
-                tbody.innerHTML = html || '<tr><td colspan="3" style="text-align:center; padding: 20px;">NO DATA</td></tr>';
+                tbody.innerHTML = html || '<tr><td colspan="3" style="text-align:center; padding: 24px; color: var(--text-muted);">ไม่มีข้อมูลสำหรับปีนี้</td></tr>';
             }
 
             function openMonthDetailModal(monthData) {
@@ -898,22 +2035,29 @@
                 document.getElementById('monthWorkDays').innerText = workDays;
                 document.getElementById('monthAvgPerDay').innerText = formatMoney(workDays ? total / workDays : 0);
                 document.getElementById('monthMaxDay').innerText = formatMoney(monthData.days.reduce((m, d) => Math.max(m, d.amount), 0));
+
                 const tbody = document.getElementById('dailyTableBody');
                 tbody.innerHTML = [...monthData.days].sort((a, b) => b.day - a.day).map(d => {
                     const src = d.source || 'อื่นๆ';
-                    const bg = getSourceColor(src);
                     const icon = getSourceIcon(src);
+                    const accentColor = getSourceAccent(src);
                     const safeSrc = src.replace(/'/g, "\\'");
                     return `
-                        <li class="detail-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-weight: 700;">Day ${d.day}</span>
-                                <span style="background: ${bg}; border: 1px solid #000; padding: 2px 6px; font-size: 0.75rem; font-weight: 700; border-radius: 3px;">${icon} ${src}</span>
+                        <li class="detail-item">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-weight: 700; color: #ffffff;">Day ${d.day}</span>
+                                <span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: ${accentColor}; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; border-radius: var(--radius-pill);">
+                                    ${icon} ${src}
+                                </span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-weight: 700; margin-right: 5px;">${formatMoney(d.amount)}</span>
-                                <button onclick="openEditIncomeModal('${d.id}', '${d.dateStr}', ${d.amount}, '${safeSrc}', '${d.createdAt}')" title="Edit" style="background: var(--c-yellow); border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">✏️</button>
-                                <button onclick="deleteIncome('${d.id}')" title="Delete" style="background: var(--c-pink); color: white; border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">🗑️</button>
+                                <span style="font-family: var(--font-display); font-weight: 700; color: #ffffff; margin-right: 6px;">${formatMoney(d.amount)}</span>
+                                <button onclick="openEditIncomeModal('${d.id}', '${d.dateStr}', ${d.amount}, '${safeSrc}', '${d.createdAt}')" title="Edit" class="btn-icon-action">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button onclick="deleteIncome('${d.id}')" title="Delete" class="btn-icon-action btn-icon-delete">
+                                    <i class='bx bx-trash'></i>
+                                </button>
                             </div>
                         </li>
                     `;
@@ -923,8 +2067,15 @@
 
             async function setGoal() {
                 const val = parseFloat(document.getElementById('goalInput').value);
-                if (isNaN(val) || val <= 0) return showToast('INVALID INPUT');
-                try { await dbSet(dbRef(db, 'freelance-income/goal'), { value: val }); currentGoal = val; updateGoalProgress(); showToast('TARGET UPDATED'); } catch (e) { showToast(e.message); }
+                if (isNaN(val) || val <= 0) return showToast('กรุณากรอกตัวเลขเป้าหมายที่ถูกต้อง');
+                try { 
+                    await dbSet(dbRef(db, 'freelance-income/goal'), { value: val }); 
+                    currentGoal = val; 
+                    updateGoalProgress(); 
+                    showToast('อัพเดทเป้าหมายสำเร็จแล้ว ✨'); 
+                } catch (e) { 
+                    showToast(e.message); 
+                }
             }
 
             function updateGoalProgress(currentAmount) {
@@ -935,7 +2086,7 @@
                 document.getElementById('gaugeProgress').style.width = percent + '%';
                 document.getElementById('heroGoal').innerText = percent.toFixed(0) + '%';
                 document.getElementById('goalTargetDisplay').innerText = formatMoney(currentGoal);
-                document.getElementById('goalRemainingDisplay').innerText = remaining > 0 ? formatMoney(remaining) : 'DONE!';
+                document.getElementById('goalRemainingDisplay').innerText = remaining > 0 ? formatMoney(remaining) : '🎉 สำเร็จเป้าหมายแล้ว!';
             }
 
             async function submitIncome() {
@@ -946,7 +2097,7 @@
                     const customVal = document.getElementById('customSourceInput').value.trim();
                     if (customVal) sourceVal = customVal;
                 }
-                if (!dateVal || !amountVal) return showToast('MISSING DATA');
+                if (!dateVal || !amountVal) return showToast('กรุณากรอกข้อมูลวันที่และจำนวนเงินให้ครบถ้วน');
                 try {
                     await dbSet(dbPush(dbRef(db, 'freelance-income/income')), {
                         date: dateVal,
@@ -954,7 +2105,7 @@
                         source: sourceVal,
                         timestamp: new Date().toISOString()
                     });
-                    showToast('CASH ADDED!');
+                    showToast('บันทึกรายได้สำเร็จแล้ว! 💰');
                     document.getElementById('incomeAmount').value = '';
                     document.getElementById('customSourceInput').value = '';
                     closeAddIncomeModal();
@@ -971,11 +2122,11 @@
                 }
             }
 
-            function getSourceColor(src) {
-                if (!src) return 'var(--c-yellow)';
-                if (src.includes('Fastwork')) return 'var(--c-blue)';
-                if (src.includes('Affiliate')) return '#EE4D2D'; // Shopee Orange
-                return 'var(--c-yellow)';
+            function getSourceAccent(src) {
+                if (!src) return '#EAB308';
+                if (src.includes('Fastwork')) return '#38BDF8';
+                if (src.includes('Affiliate')) return '#FB923C';
+                return '#EAB308';
             }
 
             function getSourceIcon(src) {
@@ -986,8 +2137,17 @@
             }
 
             function formatMoney(n) { return '฿' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
-            function showToast(msg) { const t = document.getElementById('toast'); t.classList.add('show'); document.getElementById('toastMessage').innerText = msg; setTimeout(() => t.classList.remove('show'), 3000); }
-            function showLoading(show) { const el = document.getElementById('loading'); if (show) el.classList.add('active'); else el.classList.remove('active'); }
+            function showToast(msg) { 
+                const t = document.getElementById('toast'); 
+                t.classList.add('show'); 
+                document.getElementById('toastMessage').innerText = msg; 
+                setTimeout(() => t.classList.remove('show'), 3000); 
+            }
+            function showLoading(show) { 
+                const el = document.getElementById('loading'); 
+                if (show) el.classList.add('active'); 
+                else el.classList.remove('active'); 
+            }
 
             let currentEditId = null;
             let currentEditTimestamp = null;
@@ -1037,7 +2197,7 @@
                     const customVal = document.getElementById('customSourceInputEdit').value.trim();
                     if (customVal) sourceVal = customVal;
                 }
-                if (!dateVal || !amountVal) return showToast('MISSING DATA');
+                if (!dateVal || !amountVal) return showToast('กรุณากรอกข้อมูลให้ครบถ้วน');
                 try {
                     await dbSet(dbRef(db, `freelance-income/income/${currentEditId}`), {
                         date: dateVal,
@@ -1045,7 +2205,7 @@
                         source: sourceVal,
                         timestamp: currentEditTimestamp || new Date().toISOString()
                     });
-                    showToast('RECORD UPDATED!');
+                    showToast('อัพเดทข้อมูลเรียบร้อยแล้ว');
                     closeEditIncomeModal();
                     closeMonthDetailModal();
                     closeSourceDetailModal();
@@ -1057,7 +2217,7 @@
                 if (!confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) return;
                 try {
                     await dbSet(dbRef(db, `freelance-income/income/${id}`), null);
-                    showToast('RECORD DELETED!');
+                    showToast('ลบรายการสำเร็จแล้ว');
                     closeEditIncomeModal();
                     closeMonthDetailModal();
                     closeSourceDetailModal();
@@ -1092,35 +2252,34 @@
                 });
 
                 const icon = getSourceIcon(category);
-                const bg = getSourceColor(category);
-
-                const headerEl = document.getElementById('sourceDetailHeader');
-                if (headerEl) headerEl.style.background = bg;
                 document.getElementById('sourceDetailTitle').innerText = `${icon} ${category.toUpperCase()} (${currentYear})`;
                 document.getElementById('sourceTotalIncome').innerText = formatMoney(catTotal);
                 document.getElementById('sourceWorkDays').innerText = catDays.length;
 
                 const tbody = document.getElementById('sourceDailyTableBody');
                 if (catDays.length === 0) {
-                    tbody.innerHTML = '<li class="detail-item" style="padding: 15px; text-align: center;">NO RECORDS</li>';
+                    tbody.innerHTML = '<li class="detail-item" style="padding: 20px; text-align: center; color: var(--text-muted);">ไม่มีรายการในหมวดหมู่นี้</li>';
                 } else {
                     tbody.innerHTML = catDays.map(d => {
                         const src = d.source || 'อื่นๆ';
-                        const itemBg = getSourceColor(src);
-                        const itemIcon = getSourceIcon(src);
+                        const accent = getSourceAccent(src);
                         const safeSrc = src.replace(/'/g, "\\'");
                         return `
-                            <li class="detail-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+                            <li class="detail-item">
                                 <div>
-                                    <div style="font-weight: 700;">${d.day} ${d.monthName} ${d.year}</div>
-                                    <div style="margin-top: 3px;">
-                                        <span style="background: ${itemBg}; border: 1px solid #000; padding: 1px 5px; font-size: 0.75rem; font-weight: 700; border-radius: 3px;">${itemIcon} ${src}</span>
+                                    <div style="font-weight: 700; color: #ffffff;">${d.day} ${d.monthName} ${d.year}</div>
+                                    <div style="margin-top: 4px;">
+                                        <span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: ${accent}; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; border-radius: var(--radius-pill);">${icon} ${src}</span>
                                     </div>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-weight: 700; margin-right: 5px;">${formatMoney(d.amount)}</span>
-                                    <button onclick="openEditIncomeModal('${d.id}', '${d.dateStr}', ${d.amount}, '${safeSrc}', '${d.createdAt}')" title="Edit" style="background: var(--c-yellow); border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">✏️</button>
-                                    <button onclick="deleteIncome('${d.id}')" title="Delete" style="background: var(--c-pink); color: white; border: 1px solid #000; padding: 3px 8px; font-family: var(--font-head); font-weight: 700; cursor: pointer; font-size: 0.85rem; box-shadow: 2px 2px 0 #000;">🗑️</button>
+                                    <span style="font-family: var(--font-display); font-weight: 700; color: #ffffff; margin-right: 6px;">${formatMoney(d.amount)}</span>
+                                    <button onclick="openEditIncomeModal('${d.id}', '${d.dateStr}', ${d.amount}, '${safeSrc}', '${d.createdAt}')" title="Edit" class="btn-icon-action">
+                                        <i class='bx bx-edit'></i>
+                                    </button>
+                                    <button onclick="deleteIncome('${d.id}')" title="Delete" class="btn-icon-action btn-icon-delete">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
                                 </div>
                             </li>
                         `;
@@ -1134,7 +2293,8 @@
                 document.getElementById('sourceDetailModal').classList.remove('active');
             }
 
-            window.switchYear = switchYear; window.openMonthDetailModal = openMonthDetailModal;
+            window.switchYear = switchYear; 
+            window.openMonthDetailModal = openMonthDetailModal;
             window.closeMonthDetailModal = () => document.getElementById('monthDetailModal').classList.remove('active');
             window.setGoal = setGoal; 
             window.openAddIncomeModal = () => {
@@ -1238,53 +2398,50 @@
                 if (!tbody) return;
 
                 if (grossIncome === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 15px;">ไม่มีรายได้ในปีนี้</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-muted);">ไม่มีรายได้ในปีนี้</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = brackets.map(b => {
-                    const rowStyle = b.taxAmount > 0 ? 'background: #fffef0; font-weight: 700;' : 'color: #888;';
+                    const isPayable = b.taxAmount > 0;
+                    const rowColor = isPayable ? 'color: #FB7185; font-weight: 700;' : 'color: var(--text-muted);';
                     return `
-                        <tr style="${rowStyle}">
-                            <td>${b.label}</td>
-                            <td>${b.ratePercent}</td>
-                            <td style="${b.taxAmount > 0 ? 'color: #e11d48;' : ''}">${formatMoney(b.taxAmount)}</td>
+                        <tr>
+                            <td style="font-weight: 600; color: #ffffff;">${b.label}</td>
+                            <td><span style="font-family: var(--font-display); font-weight: 700;">${b.ratePercent}</span></td>
+                            <td style="font-family: var(--font-display); ${rowColor}">${formatMoney(b.taxAmount)}</td>
                         </tr>
                     `;
                 }).join('');
             }
-
-            // =========================================
-            // TAX VISUAL CHARTS (inspired by howtotax)
-            // =========================================
 
             function renderTaxEquation(gross, expense, personal, net) {
                 const el = document.getElementById('taxEquation');
                 if (!el) return;
                 el.innerHTML = `
                     <div class="tax-eq-item">
-                        <div class="eq-label" style="color: #7A5D52;">รายได้</div>
-                        <div class="eq-value">${formatMoney(gross)}</div>
+                        <div class="eq-label" style="color: #94A3B8;">รายได้</div>
+                        <div class="eq-value" style="color: #ffffff;">${formatMoney(gross)}</div>
                     </div>
                     <div class="tax-eq-op">−</div>
                     <div class="tax-eq-item">
-                        <div class="eq-label" style="color: #1078A4;">ค่าใช้จ่าย</div>
-                        <div class="eq-value">${formatMoney(expense)}</div>
+                        <div class="eq-label" style="color: #38BDF8;">ค่าใช้จ่าย</div>
+                        <div class="eq-value" style="color: #38BDF8;">${formatMoney(expense)}</div>
                     </div>
                     <div class="tax-eq-op">−</div>
                     <div class="tax-eq-item">
-                        <div class="eq-label" style="color: #16AD82;">ลดหย่อนส่วนตัว</div>
-                        <div class="eq-value">${formatMoney(personal)}</div>
+                        <div class="eq-label" style="color: #34D399;">ลดหย่อนส่วนตัว</div>
+                        <div class="eq-value" style="color: #34D399;">${formatMoney(personal)}</div>
                     </div>
                     <div class="tax-eq-op">=</div>
                     <div class="tax-eq-item">
-                        <div class="eq-label" style="color: #2563eb;">เงินได้สุทธิ</div>
-                        <div class="eq-value" style="color: #2563eb;">${formatMoney(net)}</div>
+                        <div class="eq-label" style="color: #818CF8;">เงินได้สุทธิ</div>
+                        <div class="eq-value" style="color: #818CF8;">${formatMoney(net)}</div>
                     </div>
                 `;
             }
 
-            // Stacked Bar Chart (like howtotax MoneyBlock)
+            // Stacked Bar Chart with High-DPI Crisp Rendering
             function renderTaxStackedBar(gross, expense, personal, net, tax) {
                 const canvas = document.getElementById('taxStackedBar');
                 if (!canvas) return;
@@ -1294,66 +2451,60 @@
                 ctx.clearRect(0, 0, W, H);
 
                 if (gross <= 0) {
-                    ctx.fillStyle = '#aaa';
-                    ctx.font = '700 14px Kanit';
+                    ctx.fillStyle = '#64748B';
+                    ctx.font = '600 13px Prompt';
                     ctx.textAlign = 'center';
-                    ctx.fillText('ไม่มีรายได้', W / 2, H / 2);
+                    ctx.fillText('ไม่มีข้อมูลรายได้', W / 2, H / 2);
                     return;
                 }
 
-                const barX = 50;
-                const barW = 100;
-                const topPad = 10;
-                const botPad = 10;
+                const barX = 40;
+                const barW = 80;
+                const topPad = 16;
+                const botPad = 16;
                 const barH = H - topPad - botPad;
 
-                // Full bar = gross income
                 const scale = barH / gross;
-
-                // Segments from bottom to top: tax | net-after-tax | personal allowance | expense
                 const netAfterTax = Math.max(0, net - tax);
                 const segments = [
-                    { label: 'ภาษี', value: tax, color: '#F7353B' },
-                    { label: 'เงินได้หลังภาษี', value: netAfterTax, color: '#f5e6d0' },
-                    { label: 'ลดหย่อน', value: personal, color: '#16AD82' },
-                    { label: 'ค่าใช้จ่าย', value: expense, color: '#1078A4' },
+                    { label: 'ภาษี', value: tax, color: '#F43F5E' },
+                    { label: 'สุทธิหลังภาษี', value: netAfterTax, color: '#334155' },
+                    { label: 'ลดหย่อน', value: personal, color: '#10B981' },
+                    { label: 'ค่าใช้จ่าย', value: expense, color: '#0284C7' },
                 ];
 
                 let y = topPad;
-
-                // Draw from top to bottom
                 segments.reverse();
 
                 segments.forEach(seg => {
                     const segH = seg.value * scale;
                     if (segH < 1) return;
 
-                    // Fill
+                    // Fill bar with rounded subtle border
                     ctx.fillStyle = seg.color;
                     ctx.fillRect(barX, y, barW, segH);
 
-                    // Border
-                    ctx.strokeStyle = '#000';
+                    ctx.strokeStyle = 'rgba(15, 23, 42, 0.8)';
                     ctx.lineWidth = 1.5;
                     ctx.strokeRect(barX, y, barW, segH);
 
                     // Label on right side
                     if (segH > 14) {
-                        ctx.fillStyle = '#000';
-                        ctx.font = '700 10px Kanit';
+                        ctx.fillStyle = '#F8FAFC';
+                        ctx.font = '600 11px Prompt';
                         ctx.textAlign = 'left';
-                        ctx.fillText(seg.label, barX + barW + 6, y + segH / 2 + 3);
-                        // Amount label
-                        ctx.font = '600 9px Chakra Petch';
-                        ctx.fillStyle = '#555';
-                        ctx.fillText(formatMoney(seg.value), barX + barW + 6, y + segH / 2 + 15);
+                        ctx.fillText(seg.label, barX + barW + 10, y + segH / 2 + 2);
+                        
+                        ctx.font = '600 10px Plus Jakarta Sans';
+                        ctx.fillStyle = '#94A3B8';
+                        ctx.fillText(formatMoney(seg.value), barX + barW + 10, y + segH / 2 + 15);
                     }
 
                     // Percentage inside bar
-                    if (segH > 20) {
+                    if (segH > 22) {
                         const pct = ((seg.value / gross) * 100).toFixed(0);
-                        ctx.fillStyle = seg.color === '#f5e6d0' ? '#000' : '#fff';
-                        ctx.font = '700 11px Chakra Petch';
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '700 11px Plus Jakarta Sans';
                         ctx.textAlign = 'center';
                         ctx.fillText(pct + '%', barX + barW / 2, y + segH / 2 + 4);
                     }
@@ -1361,18 +2512,22 @@
                     y += segH;
                 });
 
-                // Left axis labels
-                ctx.fillStyle = '#888';
-                ctx.font = '600 9px Chakra Petch';
+                // Top & Bottom guide labels
+                ctx.fillStyle = '#64748B';
+                ctx.font = '600 9px Plus Jakarta Sans';
                 ctx.textAlign = 'right';
-                ctx.fillText(formatMoney(gross), barX - 5, topPad + 10);
-                ctx.fillText('฿0', barX - 5, H - botPad);
+                ctx.fillText(formatMoney(gross), barX - 6, topPad + 10);
+                ctx.fillText('฿0', barX - 6, H - botPad);
             }
 
-            // Staircase Tax Bracket Chart (like howtotax TaxBracketDisplay)
+            // Staircase Tax Bracket Chart
             function renderTaxStaircase(netIncome, activeBrackets) {
                 const canvas = document.getElementById('taxStaircaseChart');
                 if (!canvas) return;
+                
+                // Adjust for device pixel ratio / container width
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width || 500;
                 const ctx = canvas.getContext('2d');
                 const W = canvas.width;
                 const H = canvas.height;
@@ -1389,9 +2544,9 @@
                     { min: 5000000, max: 6000000, rate: 35 }
                 ];
 
-                const padL = 65;
+                const padL = 70;
                 const padR = 30;
-                const padT = 15;
+                const padT = 20;
                 const padB = 40;
                 const chartW = W - padL - padR;
                 const chartH = H - padT - padB;
@@ -1402,9 +2557,9 @@
                 const scaleX = (rate) => padL + (rate / maxRate) * chartW;
                 const scaleY = (income) => padT + chartH - (income / maxIncome) * chartH;
 
-                // Grid lines
-                ctx.strokeStyle = '#e0e0e0';
-                ctx.lineWidth = 0.5;
+                // Subtle grid
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+                ctx.lineWidth = 1;
                 for (let r = 0; r <= maxRate; r += 5) {
                     const x = scaleX(r);
                     ctx.beginPath();
@@ -1413,7 +2568,7 @@
                     ctx.stroke();
                 }
 
-                // Draw staircase shape
+                // Draw staircase
                 ctx.beginPath();
                 ctx.moveTo(scaleX(0), scaleY(0));
 
@@ -1425,26 +2580,24 @@
                     }
                 });
 
-                // Fill the staircase
                 const lastVisible = allBrackets.filter(b => b.min < maxIncome);
                 const topY = lastVisible.length ? scaleY(Math.min(lastVisible[lastVisible.length - 1].max, maxIncome)) : scaleY(0);
                 ctx.lineTo(scaleX(0), topY);
                 ctx.closePath();
 
-                ctx.fillStyle = 'rgba(247, 53, 59, 0.08)';
+                ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
                 ctx.fill();
-                ctx.strokeStyle = '#F7353B';
+                ctx.strokeStyle = '#F43F5E';
                 ctx.lineWidth = 2;
                 ctx.stroke();
 
-                // Draw bracket labels & dashed lines
+                // Rate dashed guides
                 allBrackets.forEach(b => {
                     if (b.min >= maxIncome) return;
                     const y = scaleY(b.min);
 
-                    // Dashed line
-                    ctx.setLineDash([4, 3]);
-                    ctx.strokeStyle = '#F7353B44';
+                    ctx.setLineDash([4, 4]);
+                    ctx.strokeStyle = 'rgba(244, 63, 94, 0.25)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.moveTo(padL, y);
@@ -1452,20 +2605,18 @@
                     ctx.stroke();
                     ctx.setLineDash([]);
 
-                    // Rate label at bracket start
                     if (b.rate > 0) {
-                        ctx.fillStyle = '#F7353B';
-                        ctx.font = '600 9px Chakra Petch';
+                        ctx.fillStyle = '#FB7185';
+                        ctx.font = '600 9px Plus Jakarta Sans';
                         ctx.textAlign = 'left';
-                        ctx.fillText(b.rate + '%', scaleX(b.rate) + 3, y - 3);
+                        ctx.fillText(b.rate + '%', scaleX(b.rate) + 4, y - 4);
                     }
                 });
 
-                // Draw "your income" line
+                // User Net Income Marker
                 if (netIncome > 0) {
                     const yIncome = scaleY(netIncome);
 
-                    // Fill the area below net income with a highlight
                     ctx.beginPath();
                     ctx.moveTo(scaleX(0), scaleY(0));
                     allBrackets.forEach(b => {
@@ -1476,12 +2627,12 @@
                     });
                     ctx.lineTo(scaleX(0), yIncome);
                     ctx.closePath();
-                    ctx.fillStyle = 'rgba(247, 53, 59, 0.22)';
+                    ctx.fillStyle = 'rgba(99, 102, 241, 0.25)';
                     ctx.fill();
 
-                    // Income horizontal marker line
-                    ctx.setLineDash([6, 4]);
-                    ctx.strokeStyle = '#2563eb';
+                    // Horizontal Line
+                    ctx.setLineDash([5, 4]);
+                    ctx.strokeStyle = '#6366F1';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.moveTo(padL, yIncome);
@@ -1489,83 +2640,61 @@
                     ctx.stroke();
                     ctx.setLineDash([]);
 
-                    // Label
-                    ctx.fillStyle = '#2563eb';
-                    ctx.font = '700 11px Kanit';
+                    // Income Label
+                    ctx.fillStyle = '#818CF8';
+                    ctx.font = '700 11px Prompt';
                     ctx.textAlign = 'right';
                     ctx.fillText('เงินได้สุทธิ ' + formatMoney(netIncome), W - padR, yIncome - 6);
 
-                    // Arrow/dot at intersection
+                    // Marker Dot
                     const currentBracket = allBrackets.find(b => netIncome > b.min && netIncome <= b.max);
                     if (currentBracket) {
                         const dotX = scaleX(currentBracket.rate);
                         ctx.beginPath();
                         ctx.arc(dotX, yIncome, 5, 0, Math.PI * 2);
-                        ctx.fillStyle = '#2563eb';
+                        ctx.fillStyle = '#818CF8';
                         ctx.fill();
-                        ctx.strokeStyle = '#fff';
+                        ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = 2;
                         ctx.stroke();
                     }
                 }
 
-                // Y-Axis (Income)
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 1.5;
+                // Y-Axis
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(padL, padT);
                 ctx.lineTo(padL, padT + chartH);
                 ctx.stroke();
 
-                // Y-Axis ticks
                 const ySteps = getYSteps(maxIncome);
-                ctx.fillStyle = '#666';
-                ctx.font = '600 9px Chakra Petch';
+                ctx.fillStyle = '#64748B';
+                ctx.font = '600 9px Plus Jakarta Sans';
                 ctx.textAlign = 'right';
                 ySteps.forEach(val => {
                     if (val > maxIncome) return;
                     const y = scaleY(val);
-                    ctx.fillText(formatShortMoney(val), padL - 5, y + 3);
-                    // Tick mark
-                    ctx.beginPath();
-                    ctx.moveTo(padL - 3, y);
-                    ctx.lineTo(padL, y);
-                    ctx.strokeStyle = '#333';
-                    ctx.stroke();
+                    ctx.fillText(formatShortMoney(val), padL - 8, y + 3);
                 });
 
-                // Y-Axis label
-                ctx.save();
-                ctx.translate(12, padT + chartH / 2);
-                ctx.rotate(-Math.PI / 2);
-                ctx.fillStyle = '#888';
-                ctx.font = '700 10px Kanit';
-                ctx.textAlign = 'center';
-                ctx.fillText('เงินได้ →', 0, 0);
-                ctx.restore();
-
                 // X-Axis
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 1.5;
                 ctx.beginPath();
                 ctx.moveTo(padL, padT + chartH);
                 ctx.lineTo(W - padR, padT + chartH);
                 ctx.stroke();
 
-                // X-Axis ticks
                 ctx.textAlign = 'center';
-                ctx.fillStyle = '#666';
-                ctx.font = '600 9px Chakra Petch';
+                ctx.fillStyle = '#64748B';
                 for (let r = 0; r <= maxRate; r += 5) {
                     const x = scaleX(r);
-                    ctx.fillText(r + '%', x, padT + chartH + 15);
+                    ctx.fillText(r + '%', x, padT + chartH + 16);
                 }
 
-                // X-Axis label
-                ctx.fillStyle = '#888';
-                ctx.font = '700 10px Kanit';
+                ctx.fillStyle = '#94A3B8';
+                ctx.font = '600 10px Prompt';
                 ctx.textAlign = 'center';
-                ctx.fillText('อัตราภาษี →', padL + chartW / 2, H - 5);
+                ctx.fillText('อัตราภาษี →', padL + chartW / 2, H - 6);
             }
 
             function getYSteps(maxVal) {
@@ -1597,4 +2726,5 @@
         if (window.firebaseReady) initDashboard(); else window.addEventListener('firebase-ready', initDashboard);
     </script>
 </body>
+
 </html>
