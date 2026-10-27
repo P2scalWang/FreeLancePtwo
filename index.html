@@ -1451,13 +1451,28 @@
                     </div>
                 </div>
                 <div style="padding: 24px;">
+                    <div id="affTaxPanel" style="background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.3); border-radius: var(--radius-md); padding: 16px; margin-bottom: 18px;">
+                        <div style="font-weight: 700; color: #FB923C; margin-bottom: 10px;">🔗 Affiliate คิดแบบ 40(8) หักค่าใช้จ่ายจริง</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;">
+                            <label style="font-size: 0.85rem; color: var(--text-secondary);">ค่าแอดรวมทั้งปี (บาท)</label>
+                            <input type="number" id="adSpendInput" class="modern-input" style="width: 180px;" placeholder="0">
+                            <button class="btn-modern" style="padding: 8px 14px;" onclick="saveAdSpend()">บันทึกค่าแอด</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 0.82rem;">
+                            <div><div style="color: var(--text-muted);">เงินเข้าบัญชีจริง</div><div style="font-weight: 700; color: #fff;" id="affNetReceived">฿0</div></div>
+                            <div><div style="color: var(--text-muted);">ค่าคอมรวม (เงินได้)</div><div style="font-weight: 700; color: #fff;" id="affCommission">฿0</div></div>
+                            <div><div style="color: var(--text-muted);">ค่าบริการ 1% + VAT</div><div style="font-weight: 700; color: #38BDF8;" id="affFee">฿0</div></div>
+                            <div><div style="color: var(--text-muted);">WHT 3% ที่ Shopee หักไว้</div><div style="font-weight: 700; color: #34D399;" id="affWht">฿0</div></div>
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 8px;" id="affEstNote"></div>
+                    </div>
                     <div class="tax-kpi-grid">
                         <div class="tax-kpi-card">
                             <div class="tax-kpi-label">รายได้รวมพึงประเมิน</div>
                             <div class="tax-kpi-val" id="taxGrossIncome">฿0</div>
                         </div>
                         <div class="tax-kpi-card">
-                            <div class="tax-kpi-label">หักค่าใช้จ่าย 50% (≤ 1 แสน) + ลดหย่อน 6 หมื่น</div>
+                            <div class="tax-kpi-label" id="taxDeductLabel">หักค่าใช้จ่าย + ลดหย่อน 6 หมื่น</div>
                             <div class="tax-kpi-val" style="color: #F59E0B;" id="taxDeductions">-฿0</div>
                         </div>
                         <div class="tax-kpi-card">
@@ -1468,6 +1483,10 @@
                             <div class="tax-kpi-label" style="color: #FECDD3;">ภาษีประมาณการที่ต้องจ่าย 💸</div>
                             <div class="tax-kpi-val" style="color: #FB7185;" id="taxPayable">฿0</div>
                             <div style="font-size: 0.78rem; font-weight: 600; color: #FECDD3; margin-top: 4px;" id="taxEffectiveRate">อัตราภาษีเฉลี่ยสุทธิ: 0%</div>
+                        </div>
+                        <div class="tax-kpi-card" id="taxBalanceCard">
+                            <div class="tax-kpi-label" id="taxBalanceLabel">หลังหัก WHT ที่ถูกหักไว้แล้ว</div>
+                            <div class="tax-kpi-val" id="taxBalance">฿0</div>
                         </div>
                     </div>
 
@@ -1552,6 +1571,11 @@
                     </select>
                     <input type="text" id="customSourceInput" class="modern-input" style="width: 100%; margin-top: 10px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
                 </div>
+                <div class="form-group" id="commissionGroup" style="display: none;">
+                    <label class="form-label">ค่าคอมรวม ก่อนหักภาษี (ใช้คำนวณภาษี · ไม่บังคับ)</label>
+                    <input type="number" id="incomeCommission" class="modern-input" style="width: 100%;" placeholder="เว้นว่าง = ประมาณจากยอดเงินเข้า">
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">ช่องจำนวนเงินด้านบน = ยอดที่ทำจ่ายสำเร็จ (เงินเข้าบัญชีจริง)</small>
+                </div>
                 <button onclick="submitIncome()" class="btn-modern" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #10B981, #059669); font-size: 1rem;">
                     <i class='bx bx-save'></i> บันทึกข้อมูล
                 </button>
@@ -1625,6 +1649,10 @@
                         <option value="อื่นๆ">💡 อื่นๆ</option>
                     </select>
                     <input type="text" id="customSourceInputEdit" class="modern-input" style="width: 100%; margin-top: 10px; display: none;" placeholder="ระบุช่องทางเงินเพิ่มเติม...">
+                </div>
+                <div class="form-group" id="commissionGroupEdit" style="display: none;">
+                    <label class="form-label">ค่าคอมรวม ก่อนหักภาษี (ใช้คำนวณภาษี · ไม่บังคับ)</label>
+                    <input type="number" id="incomeCommissionEdit" class="modern-input" style="width: 100%;" placeholder="เว้นว่าง = ประมาณจากยอดเงินเข้า">
                 </div>
                 <div style="display: flex; gap: 12px;">
                     <button onclick="updateIncome()" class="btn-modern" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10B981, #059669);">
@@ -1701,11 +1729,15 @@
             let currentYear = new Date().getFullYear() + 543;
             let myChart = null;
             let currentGoal = 0;
+            let adSpendByYear = {};
+            const recordById = {};
+            const AFF_NET_RATIO = 1 - 0.01 * 1.07 - 0.03; // เงินเข้า = ค่าคอม - ค่าบริการ1%(+VAT) - WHT3%
 
             function processFirebaseData(snapshot) {
                 if (!snapshot.exists()) return { years: [], monthly: [], goal: null };
                 const data = snapshot.val();
                 let goal = (data.goal && data.goal.value !== undefined) ? parseFloat(data.goal.value) : null;
+                adSpendByYear = data.adspend || {};
                 const freelanceRecords = [];
                 if (data.income) {
                     Object.keys(data.income).forEach(key => {
@@ -1716,6 +1748,7 @@
                                 Date: record.date,
                                 Money: record.money,
                                 Source: record.source || 'อื่นๆ',
+                                commission: record.commission,
                                 createdAt: record.timestamp || key
                             });
                         }
@@ -1745,8 +1778,10 @@
                         day: parseInt(dateParts[0]),
                         amount: amount,
                         source: record.Source,
+                        commission: (record.commission !== undefined && record.commission !== null && record.commission !== '') ? parseFloat(record.commission) : null,
                         createdAt: record.createdAt
                     });
+                    recordById[record.id] = { commission: record.commission };
                 });
                 const years = Array.from(yearSet).sort((a, b) => b - a);
                 const monthly = Object.values(monthlyMap).sort((a, b) => (b.year - a.year) || (b.month - a.month));
@@ -2098,13 +2133,17 @@
                     if (customVal) sourceVal = customVal;
                 }
                 if (!dateVal || !amountVal) return showToast('กรุณากรอกข้อมูลวันที่และจำนวนเงินให้ครบถ้วน');
+                const commVal = document.getElementById('incomeCommission').value;
+                const newRec = {
+                    date: dateVal,
+                    money: parseFloat(amountVal),
+                    source: sourceVal,
+                    timestamp: new Date().toISOString()
+                };
+                if (sourceVal === 'Affiliate' && commVal) newRec.commission = parseFloat(commVal);
                 try {
-                    await dbSet(dbPush(dbRef(db, 'freelance-income/income')), {
-                        date: dateVal,
-                        money: parseFloat(amountVal),
-                        source: sourceVal,
-                        timestamp: new Date().toISOString()
-                    });
+                    await dbSet(dbPush(dbRef(db, 'freelance-income/income')), newRec);
+                    document.getElementById('incomeCommission').value = '';
                     showToast('บันทึกรายได้สำเร็จแล้ว! 💰');
                     document.getElementById('incomeAmount').value = '';
                     document.getElementById('customSourceInput').value = '';
@@ -2113,6 +2152,7 @@
             }
 
             function toggleCustomSourceInput(val) {
+                document.getElementById('commissionGroup').style.display = val === 'Affiliate' ? 'block' : 'none';
                 const customInput = document.getElementById('customSourceInput');
                 if (val === 'อื่นๆ') {
                     customInput.style.display = 'block';
@@ -2157,6 +2197,9 @@
                 currentEditTimestamp = createdAt;
                 document.getElementById('incomeDateEdit').value = dateStr;
                 document.getElementById('incomeAmountEdit').value = amount;
+                const rec = recordById[id] || {};
+                document.getElementById('incomeCommissionEdit').value = (rec.commission !== undefined && rec.commission !== null) ? rec.commission : '';
+                document.getElementById('commissionGroupEdit').style.display = source === 'Affiliate' ? 'block' : 'none';
 
                 const sourceSelect = document.getElementById('incomeSourceEdit');
                 const customInput = document.getElementById('customSourceInputEdit');
@@ -2179,6 +2222,7 @@
             }
 
             function toggleCustomSourceInputEdit(val) {
+                document.getElementById('commissionGroupEdit').style.display = val === 'Affiliate' ? 'block' : 'none';
                 const customInput = document.getElementById('customSourceInputEdit');
                 if (val === 'อื่นๆ') {
                     customInput.style.display = 'block';
@@ -2198,13 +2242,16 @@
                     if (customVal) sourceVal = customVal;
                 }
                 if (!dateVal || !amountVal) return showToast('กรุณากรอกข้อมูลให้ครบถ้วน');
+                const commValEdit = document.getElementById('incomeCommissionEdit').value;
+                const editRec = {
+                    date: dateVal,
+                    money: parseFloat(amountVal),
+                    source: sourceVal,
+                    timestamp: currentEditTimestamp || new Date().toISOString()
+                };
+                if (sourceVal === 'Affiliate' && commValEdit) editRec.commission = parseFloat(commValEdit);
                 try {
-                    await dbSet(dbRef(db, `freelance-income/income/${currentEditId}`), {
-                        date: dateVal,
-                        money: parseFloat(amountVal),
-                        source: sourceVal,
-                        timestamp: currentEditTimestamp || new Date().toISOString()
-                    });
+                    await dbSet(dbRef(db, `freelance-income/income/${currentEditId}`), editRec);
                     showToast('อัพเดทข้อมูลเรียบร้อยแล้ว');
                     closeEditIncomeModal();
                     closeMonthDetailModal();
@@ -2299,6 +2346,8 @@
             window.setGoal = setGoal; 
             window.openAddIncomeModal = () => {
                 document.getElementById('incomeSource').value = 'Fastwork';
+                document.getElementById('commissionGroup').style.display = 'none';
+                document.getElementById('incomeCommission').value = '';
                 document.getElementById('customSourceInput').value = '';
                 document.getElementById('customSourceInput').style.display = 'none';
                 document.getElementById('addIncomeModal').classList.add('active');
@@ -2355,28 +2404,55 @@
                 return { totalTax, brackets };
             }
 
-            function renderTaxCalculation(yearData) {
-                let grossIncome = 0;
+            async function saveAdSpend() {
+                const v = parseFloat(document.getElementById('adSpendInput').value) || 0;
+                try {
+                    await dbSet(dbRef(db, `freelance-income/adspend/${currentYear}`), v);
+                    showToast('บันทึกค่าแอดแล้ว');
+                } catch (e) { showToast(e.message); }
+            }
+            window.saveAdSpend = saveAdSpend;
 
+            function renderTaxCalculation(yearData) {
+                // แยก Affiliate (40(8) หักค่าใช้จ่ายจริง) กับรายได้อื่น (40(2) เหมา 50% ไม่เกิน 1 แสน)
+                let affNet = 0, affComm = 0, affEstCount = 0, otherGross = 0;
                 yearData.forEach(m => {
                     m.days.forEach(d => {
-                        if (currentTaxCategory === 'ALL') {
-                            grossIncome += d.amount;
-                        } else {
-                            const cat = getCategoryKey(d.source);
-                            if (cat === currentTaxCategory) {
-                                grossIncome += d.amount;
-                            }
+                        const cat = getCategoryKey(d.source);
+                        if (cat === 'Affiliate') {
+                            affNet += d.amount;
+                            if (d.commission) affComm += d.commission;
+                            else { affComm += d.amount / AFF_NET_RATIO; affEstCount++; }
+                        } else if (currentTaxCategory === 'ALL' || cat === currentTaxCategory) {
+                            otherGross += d.amount;
                         }
                     });
                 });
+                const includeAff = currentTaxCategory === 'ALL' || currentTaxCategory === 'Affiliate';
+                const adSpend = parseFloat(adSpendByYear[currentYear]) || 0;
+                const affFee = affComm * 0.01 * 1.07;
+                const affWht = affComm * 0.03;
 
-                // หักค่าใช้จ่าย 50% สูงสุดไม่เกิน 100,000 บาท
-                const expenseDeduction = Math.min(grossIncome * 0.5, 100000);
-                // หักลดหย่อนส่วนตัว 60,000 บาท
+                const adInput = document.getElementById('adSpendInput');
+                if (adInput && document.activeElement !== adInput) adInput.value = adSpend || '';
+                document.getElementById('affTaxPanel').style.display = includeAff ? 'block' : 'none';
+                document.getElementById('affNetReceived').innerText = formatMoney(affNet);
+                document.getElementById('affCommission').innerText = formatMoney(affComm);
+                document.getElementById('affFee').innerText = formatMoney(affFee);
+                document.getElementById('affWht').innerText = formatMoney(affWht);
+                document.getElementById('affEstNote').innerText = affEstCount > 0
+                    ? `* ${affEstCount} รายการยังไม่ได้ใส่ค่าคอมรวม ระบบประมาณจากยอดเงินเข้า ÷ ${AFF_NET_RATIO.toFixed(4)} (แก้ไขรายการเพื่อใส่ตัวเลขจาก 50 ทวิ ได้)`
+                    : '';
+
+                const grossIncome = (includeAff ? affComm : 0) + (currentTaxCategory === 'Affiliate' ? 0 : otherGross);
+                const otherExpense = currentTaxCategory === 'Affiliate' ? 0 : Math.min(otherGross * 0.5, 100000);
+                const affExpense = includeAff ? (adSpend + affFee) : 0;
+                const expenseDeduction = otherExpense + affExpense;
                 const personalAllowance = grossIncome > 0 ? 60000 : 0;
                 const totalDeductions = expenseDeduction + personalAllowance;
-
+                document.getElementById('taxDeductLabel').innerText = includeAff
+                    ? 'หักค่าใช้จ่าย (ค่าแอด + ค่าบริการ' + (currentTaxCategory === 'ALL' ? ' + เหมาอื่นๆ' : '') + ') + ลดหย่อน 6 หมื่น'
+                    : 'หักค่าใช้จ่าย 50% (≤ 1 แสน) + ลดหย่อน 6 หมื่น';
                 const netTaxableIncome = Math.max(0, grossIncome - totalDeductions);
                 const { totalTax, brackets } = calculateThaiTax(netTaxableIncome);
                 const effectiveRate = grossIncome > 0 ? ((totalTax / grossIncome) * 100).toFixed(2) : '0.00';
@@ -2386,6 +2462,11 @@
                 document.getElementById('taxNetIncome').innerText = formatMoney(netTaxableIncome);
                 document.getElementById('taxPayable').innerText = formatMoney(totalTax);
                 document.getElementById('taxEffectiveRate').innerText = `อัตราภาษีเฉลี่ยสุทธิ: ${effectiveRate}%`;
+                const whtCredit = includeAff ? affWht : 0;
+                const balance = totalTax - whtCredit;
+                document.getElementById('taxBalanceLabel').innerText = balance >= 0 ? 'ต้องจ่ายเพิ่มตอนยื่น (หลังหัก WHT) 💸' : 'ได้เงินภาษีคืน (หลังหัก WHT) 🎉';
+                document.getElementById('taxBalance').innerText = formatMoney(Math.abs(balance));
+                document.getElementById('taxBalance').style.color = balance >= 0 ? '#FB7185' : '#34D399';
 
                 // Render tax equation
                 renderTaxEquation(grossIncome, expenseDeduction, personalAllowance, netTaxableIncome);
